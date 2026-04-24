@@ -1,0 +1,17 @@
+.The renderer class manages the graphic part, draws the plot and does nothing else. 
+draws every frame 
+it iterates trought every object in the vector to make the draw calls, 
+we need to know the individual colors of each object when drawig
+
+.The game class stores every cells information, a vector of every object and handles user interactions.
+(maybe ill do a separate class just for that)
+We only use the bi-dimensional array with every cell to check if there is any layer complitly full
+
+.The object class is the base class for every shape object
+im still to decide how i want to implemente the coordinate sistem and how it is interpreted 
+
+Im thinking about 
+
+We need a menu class probably
+We need a score class probably (maybe just make the game class also manage this)
+
