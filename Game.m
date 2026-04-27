@@ -7,9 +7,10 @@ classdef Game < handle
     methods
         function this = Game(size)
             this.map = zeros(10, 10, size);
+            this.objects = {};
         end
         function addObject(this, newObject)
-            this.objects = [this.objects newObject];
+            this.objects = {this.objects newObject};
         
         
         end
@@ -28,7 +29,7 @@ classdef Game < handle
         function CheckLayers(this)
             
             layers = all(this.map == 1, 1:size(this.map));
-            hasToCheck = 1;
+            hasToCheck = true;
 
             while hasToCheck
                 for i = 1:length(layers)
@@ -37,7 +38,7 @@ classdef Game < handle
                         break
                     end
                 end
-                hasToCheck = 0;
+                hasToCheck = false;
             end
         end
     end

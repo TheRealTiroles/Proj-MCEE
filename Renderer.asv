@@ -19,20 +19,9 @@ classdef Renderer < handle
                   'EdgeColor', 'k', 'Parent', parentNode);
         end
 
-        function drawGameObjects(this, game)
+        function drawGameObjects(game)
 
-            for i = 1:lenght(game)
-
-                mainNode = game.objects{i}.mainNode;
-                cor = game.objects{i};
-                for j = 1:4
-                    
-                    offset = game.objects{i}.blockPositions(j, :);
-                    
-                    this.desenharCuboUnitario(mainNode, offset, cor);
-
-                end
-            end
+            for i = 1:lenght()
 
 
         end
