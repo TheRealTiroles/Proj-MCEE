@@ -1,0 +1,203 @@
+
+close all;
+
+t_antigos = timerfind;
+if ~isempty(t_antigos)
+    stop(t_antigos);
+    delete(t_antigos);
+end
+fig = figure('KeyPressFcn', @keyboardCallback);
+xlim([0, 5]); xlabel('x'); xticks(0:5);
+ylim([0, 5]); ylabel('y'); yticks(0:5);
+zlim([0, 10]); zlabel('z'); zticks(0:10);
+grid on;
+view(3);
+
+
+
+dados.x = [0 0 0 0
+           0 1 1 0
+           0 0 1 1
+           0 0 1 1
+           0 1 1 0
+           1 1 1 1];
+
+
+dados.y = [0 1 1 0
+           0 0 0 0
+           0 1 1 0
+           0 1 1 0
+           1 1 1 1
+           0 1 1 0];
+
+dados.z = [0 0 1 1
+           0 0 1 1
+           0 0 0 0
+           1 1 1 1
+           0 0 1 1
+           0 0 1 1] + 9;
+
+
+
+dados.map = zeros(25, 4);
+
+
+set(fig, 'UserData', dados);
+
+drawcube(fig);
+
+t = timer('ExecutionMode', 'fixedRate', 'Period', 1);
+t.TimerFcn = @(obj, event) atualizarTempo(fig, obj); 
+
+% Importante: O delete do timer deve estar no fecho da figura
+set(fig, 'DeleteFcn', @(~,~) stop_and_delete_safe(t));
+
+start(t);
+
+function keyboardCallback(src, event)
+    % Recupera os dados guardados na figura
+    d = get(src, 'UserData');
+    passo = 1;
+    f = size(d.x, 1);
+    numblock = f/6;
+    s_block = 6*numblock-5;
+    f_block = f;
+    current_block = s_block:f_block;
+    pos = d.x(f-3, 4) + 5*d.y(f-3, 4);
+    dif = d.z(f-3, 4) - d.map(pos, 4);
+
+    % Verifica qual tecla foi pressionada
+    switch event.Key
+        case 'uparrow',    if d.y(current_block, :)<5 d.y(current_block, :) = d.y(current_block, :) + passo; end
+        case 'downarrow',  if d.y(current_block, :)>0 d.y(current_block, :) = d.y(current_block, :) - passo; end
+        case 'leftarrow',  if d.x(current_block, :)>0 d.x(current_block, :) = d.x(current_block, :) - passo; end
+        case 'rightarrow', if d.x(current_block, :)<5 d.x(current_block, :) = d.x(current_block, :) + passo; end
+        case 'escape'
+            set(src, 'KeyPressFcn', '');
+        case 'space'
+            d.z(current_block, :) = d.z(current_block, :)-dif;
+
+    end
+    
+    if d.z(f-3,4) <= d.map(pos, 4)
+            d.map(pos, :) = d.map(pos, :) + 1;
+            novox = [0 0 0 0
+                     0 1 1 0
+                     0 0 1 1
+                     0 0 1 1
+                     0 1 1 0
+                     1 1 1 1];
+
+            novoy = [0 1 1 0
+                     0 0 0 0
+                     0 1 1 0
+                     0 1 1 0
+                     1 1 1 1
+                     0 1 1 0];
+
+            novoz = [0 0 1 1
+                     0 0 1 1
+                     0 0 0 0
+                     1 1 1 1
+                     0 0 1 1
+                     0 0 1 1] + 9;
+
+
+            d.x = [d.x; novox];
+            d.y = [d.y; novoy];
+            d.z = [d.z; novoz];
+     end
+    
+     if all(d.map)
+         d.x = d.x(end-6:end, :);
+         d.y = d.y(end-6:end, :);
+         d.z = d.z(end-6:end, :) - 1;
+         d.map = d.map - 1;
+     end
+
+    % Guarda os novos dados e redesenha
+    set(src, 'UserData', d);
+    drawcube(src);
+end
+
+function atualizarTempo(fig_handle, t_obj)
+    if ishandle(fig_handle)
+        d = get(fig_handle, 'UserData');
+        f = size(d.x, 1);
+        numblock = f/6;
+        s_block = 6*numblock-5;
+        f_block = f;
+        current_block = s_block:f_block;
+        pos = d.x(f-3, 4) + 5*d.y(f-3, 4);
+        if d.z(f-3,4) <= d.map(pos, 4)
+            d.map(pos, :) = d.map(pos, :) + 1;
+            novox = [0 0 0 0
+                     0 1 1 0
+                     0 0 1 1
+                     0 0 1 1
+                     0 1 1 0
+                     1 1 1 1];
+
+            novoy = [0 1 1 0
+                     0 0 0 0
+                     0 1 1 0
+                     0 1 1 0
+                     1 1 1 1
+                     0 1 1 0];
+
+            novoz = [0 0 1 1
+                     0 0 1 1
+                     0 0 0 0
+                     1 1 1 1
+                     0 0 1 1
+                     0 0 1 1];
+
+            novoz = novoz + 9;
+
+            d.x = [d.x; novox];
+            d.y = [d.y; novoy];
+            d.z = [d.z; novoz];
+        else
+            d.z(current_block, :) = d.z(current_block, :) - 1;
+        end
+        disp(all(d.map));
+        if all(d.map)
+         d.x = d.x(end-6:end, :);
+         d.y = d.y(end-6:end, :);
+         d.z = d.z(end-6:end, :) - 1;
+         d.map = d.map - 1;
+        end
+
+        disp(size(d.x, 1));
+
+        if d.map(pos, 4) == 9
+            stop_and_delete_safe(t_obj);
+            set(fig_handle, 'KeyPressFcn', '');
+        end
+  
+        set(fig_handle, 'UserData', d);
+    end
+    drawcube(fig_handle);
+end
+
+function drawcube(fig_handle)
+    d = get(fig_handle, 'UserData');
+    ax = gca;
+    cla(ax); % Limpa o desenho anterior para não deixar rasto
+    f = size(d.x, 1);
+    for i = 1:f
+        patch(d.x(i, :),d.y(i, :),d.z(i, :),[0 0 1]);
+    end
+    pos = d.x(f-3, 4) + 5*d.y(f-3, 4);
+    patch(d.x(f-3,:), d.y(f-3,:), d.map(pos, :), [0.25 0.25 0.25]);
+end
+
+function stop_and_delete_safe(t_obj)
+    try
+        if isvalid(t_obj)
+            stop(t_obj);
+            delete(t_obj);
+        end
+    catch
+    end
+end
