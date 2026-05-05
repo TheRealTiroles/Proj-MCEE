@@ -17,10 +17,11 @@ grid on;
 view(3);
 
 
-dados.pos = [1, 1, dados.h];
+pos_ini = [1, 1, dados.h];
 
+dados.blocos = Blocos(pos_ini);
 
-dados.x = [0 0 0 0
+dados.cell_x = [0 0 0 0
            0 1 1 0
            0 0 1 1
            0 0 1 1
@@ -28,14 +29,14 @@ dados.x = [0 0 0 0
            1 1 1 1];
 
 
-dados.y = [0 1 1 0
+dados.cell_y = [0 1 1 0
            0 0 0 0
            0 1 1 0
            0 1 1 0
            1 1 1 1
            0 1 1 0];
 
-dados.z = [0 0 1 1
+dados.cell_z = [0 0 1 1
            0 0 1 1
            0 0 0 0
            1 1 1 1
@@ -43,7 +44,6 @@ dados.z = [0 0 1 1
            0 0 1 1];
 
 dados.map = zeros(dados.n^2, 4);
-
 
 set(fig, 'UserData', dados);
 
@@ -58,6 +58,30 @@ set(fig, 'DeleteFcn', @(~,~) stop_and_delete_safe(t));
 start(t);
 
 function keyboardCallback(src, event)
+    d = get(src, 'UserData');
+    passo = 1;
+    num_bloco = size(d.blocos, 1)
+    pos_bloco = d.blocos(num_bloco).pos(1) + d.n*(d.blocos(num_bloco).pos(2) - 1);
+    dif = d.blocos(num_bloco).pos(3) - (d.map(pos_bloco, 4) + 1);
+    switch event.Key
+        case 'uparrow'
+            d.blocos(num_bloco).move(passo, 2);
+            disp('Ok2');
+        case 'downarrow'
+            d.blocos(num_bloco).move(-passo, 2);
+        case 'leftarrow'
+            d.blocos(num_bloco).move(-passo, 1);
+        case 'rightarrow'
+            d.blocos(num_bloco).move(passo, 1);
+        case 'escape'
+            set(src, 'KeyPressFcn', '');
+        case 'space'
+            d.blocos(num_bloco).place(dif);
+    end
+
+    drawcube(src);
+
+    %{
     % Recupera os dados guardados na figura
     d = get(src, 'UserData');
     passo = 1;
@@ -92,10 +116,12 @@ function keyboardCallback(src, event)
     % Guarda os novos dados e redesenha
     set(src, 'UserData', d);
     drawcube(src);
+    %}
 end
 
 function atualizarTempo(fig_handle, t_obj)
-    if ishandle(fig_handle)
+    %{
+        if ishandle(fig_handle)
         d = get(fig_handle, 'UserData');
         num_bloco = size(d.pos, 1);
         pos_bloco = d.pos(num_bloco, 1) + d.n*(d.pos(num_bloco, 2) - 1);
@@ -122,11 +148,37 @@ function atualizarTempo(fig_handle, t_obj)
         set(fig_handle, 'UserData', d);
     end
     drawcube(fig_handle);
+    %}
 
 end
 
 
 function drawcube(fig_handle)
+    d = get(fig_handle, 'UserData');
+    ax = gca;
+    cla(ax);
+    num_bloco = size(d.blocos, 1);
+    pos_bloco = d.blocos(num_bloco).pos(1) + d.n*(d.blocos(num_bloco).pos(2) - 1);
+    if d.blocos(num_bloco).pos(3) <= d.map(pos_bloco, 4) + 1
+        d.blocos = [d.blocos; Blocos([d.blocos(num_bloco).pos(1:2), d.h])];
+    end
+    for i = 1:num_bloco
+        t_bloco_aux_x = d.cell_x;
+        t_bloco_aux_y = d.cell_y;
+        I = find(t_bloco_aux_x == 1);
+        t_bloco_aux_x(I) = t_bloco_aux_x(I) + d.blocos(i).ori(1);
+        I = find(t_bloco_aux_y == 1);
+        t_bloco_aux_y(I) = t_bloco_aux_y(I) + d.blocos(i).ori(2);
+        for j = 1:6
+            patch(d.blocos(i).pos(1) + t_bloco_aux_x(j, :) - 1, d.blocos(i).pos(2) + t_bloco_aux_y(j, :) - 1, ...
+                d.blocos(i).pos(3) + d.cell_z(j, :) - 1, d.blocos(i).color);
+        end
+    end
+
+    set(fig_handle, 'UserData', d);
+
+
+    %{
     d = get(fig_handle, 'UserData');
     ax = gca;
     cla(ax); % Limpa o desenho anterior para não deixar rasto
@@ -139,6 +191,7 @@ function drawcube(fig_handle)
     end
     pos_bloco = d.pos(num_bloco, 1) + d.n*(d.pos(num_bloco, 2)-1);
     patch(d.pos(num_bloco, 1) + d.x(3, :) - 1,d.pos(num_bloco, 2) + d.y(3, :) - 1, d.map(pos_bloco, :), [0 0 0]);
+    %}
 end
 
 function stop_and_delete_safe(t_obj)

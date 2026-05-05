@@ -1,4 +1,4 @@
-classdef Blocos
+classdef Blocos < handle
     %BLOCOS Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -25,6 +25,8 @@ classdef Blocos
                     obj.len = 2;
                     obj.ori(randi(2)) = randi([0 1]) * 2 - 1;
             end
+            
+            obj.pos = p;
 
             if any(obj.ori)
                 if obj.pos(1) + obj.ori(1) > 5 || obj.pos(1) + obj.ori(1) < 1 || ...
@@ -33,14 +35,22 @@ classdef Blocos
                 end
             end
             
-            obj.pos = [p(1) + obj.ori(1), p(2) + obj.ori(2), p(3)];
-
-
         end
         
-        function move(obj, passo, coord, n)
-            if obj
-            
+        function move(obj, passo, dir)
+            if passo == obj.ori(dir)
+                if obj.pos(dir) + obj.ori(dir) + passo <= 5 && obj.pos(dir) + obj.ori(dir) + passo > 0
+                    obj.pos(dir) = obj.pos(dir) + passo;
+                end
+            else
+                if obj.pos(dir) + passo <= 5 && obj.pos(dir) + passo > 0
+                    obj.pos(dir) = obj.pos(dir) + passo;
+                end
+            end
+        end
+
+        function place(obj, h)
+            obj.pos(3) = obj.pos(3) - h;
         end
     end
 end
