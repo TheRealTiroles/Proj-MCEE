@@ -97,17 +97,13 @@ end
 function atualizarTempo(fig_handle, t_obj)
     if ishandle(fig_handle)
         d = get(fig_handle, 'UserData');
-        f = size(d.x, 1);
-        numblock = f/6;
-        s_block = 6*numblock-5;
-        f_block = f;
-        current_block = s_block:f_block;
-        pos = d.x(f-3, 4) + 5*d.y(f-3, 4);
+        num_bloco = size(d.pos, 1);
+        pos_bloco = d.pos(num_bloco, 1) + d.n*(d.pos(num_bloco, 2) - 1);
         if d.pos(num_bloco, 3) <= d.map(pos_bloco, 4) + 1
             d.map(pos_bloco, :) = d.map(pos_bloco, :) + 1;
-        d.pos = [d.pos; d.pos(num_bloco, 1) d.pos(num_bloco, 2) d.h];
-        end
-            d.z(current_block, :) = d.z(current_block, :) - 1;
+            d.pos = [d.pos; d.pos(num_bloco, 1) d.pos(num_bloco, 2) d.h];
+        else
+            d.pos(num_bloco, 3) = d.pos(num_bloco, 3) - 1;
         end
 
         if all(d.map)
@@ -117,9 +113,10 @@ function atualizarTempo(fig_handle, t_obj)
             d.map = d.map - 1;
         end
 
-        if d.map(pos, 4) == 9
+        if d.map(pos_bloco, 4) == 9
             stop_and_delete_safe(t_obj);
             set(fig_handle, 'KeyPressFcn', '');
+            close(fig_handle);
         end
   
         set(fig_handle, 'UserData', d);
@@ -135,7 +132,6 @@ function drawcube(fig_handle)
     cla(ax); % Limpa o desenho anterior para não deixar rasto
     f = size(d.x, 1);
     num_bloco = size(d.pos, 1);
-    disp(num_bloco);
     for j = 1:num_bloco
         for i = 1:f
             patch(d.pos(j, 1) + d.x(i, :) - 1,d.pos(j, 2) + d.y(i, :) - 1,d.pos(j, 3) + d.z(i, :) - 1,[0 0 1]);
