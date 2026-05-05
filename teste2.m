@@ -1,3 +1,28 @@
+dados.cell_x = [0 0 0 0
+           0 1 1 0
+           0 0 1 1
+           0 0 1 1
+           0 1 1 0
+           1 1 1 1];
+
+
+dados.cell_y = [0 1 1 0
+           0 0 0 0
+           0 1 1 0
+           0 1 1 0
+           1 1 1 1
+           0 1 1 0];
+
+dados.cell_z = [0 0 1 1
+                0 0 1 1
+                0 0 0 0
+                1 1 1 1
+                0 0 1 1
+                0 0 1 1];
+
+dados.colors = [0 0 1;
+                1 0 0
+                1 0 0];
 
 close all;
 
@@ -21,29 +46,7 @@ pos_ini = [1, 1, dados.h];
 
 dados.blocos = Blocos(pos_ini);
 
-dados.cell_x = [0 0 0 0
-           0 1 1 0
-           0 0 1 1
-           0 0 1 1
-           0 1 1 0
-           1 1 1 1];
-
-
-dados.cell_y = [0 1 1 0
-           0 0 0 0
-           0 1 1 0
-           0 1 1 0
-           1 1 1 1
-           0 1 1 0];
-
-dados.cell_z = [0 0 1 1
-           0 0 1 1
-           0 0 0 0
-           1 1 1 1
-           0 0 1 1
-           0 0 1 1];
-
-dados.map = zeros(dados.n^2, 4);
+dados.tab = Game_board(dados.n, dados.h);
 
 set(fig, 'UserData', dados);
 
@@ -60,95 +63,30 @@ start(t);
 function keyboardCallback(src, event)
     d = get(src, 'UserData');
     passo = 1;
-    num_bloco = size(d.blocos, 1)
-    pos_bloco = d.blocos(num_bloco).pos(1) + d.n*(d.blocos(num_bloco).pos(2) - 1);
-    dif = d.blocos(num_bloco).pos(3) - (d.map(pos_bloco, 4) + 1);
     switch event.Key
         case 'uparrow'
-            d.blocos(num_bloco).move(passo, 2);
-            disp('Ok2');
+            d.blocos.move(passo, 2, d.tab);
         case 'downarrow'
-            d.blocos(num_bloco).move(-passo, 2);
+            d.blocos.move(-passo, 2, d.tab);
         case 'leftarrow'
-            d.blocos(num_bloco).move(-passo, 1);
+            d.blocos.move(-passo, 1, d.tab);
         case 'rightarrow'
-            d.blocos(num_bloco).move(passo, 1);
+            d.blocos.move(passo, 1, d.tab);
         case 'escape'
             set(src, 'KeyPressFcn', '');
         case 'space'
-            d.blocos(num_bloco).place(dif);
+            d.blocos = d.blocos.place(d.tab);
     end
 
     drawcube(src);
 
-    %{
-    % Recupera os dados guardados na figura
-    d = get(src, 'UserData');
-    passo = 1;
-    num_bloco = size(d.pos, 1);
-    pos_bloco = d.pos(num_bloco, 1) + d.n*(d.pos(num_bloco, 2) - 1);
-    dif = d.pos(num_bloco, 3) - (d.map(pos_bloco, 4) + 1);
-
-    % Verifica qual tecla foi pressionada
-    switch event.Key
-        case 'uparrow',    if d.pos(num_bloco, 2)<d.n d.pos(num_bloco, 2) = d.pos(num_bloco, 2) + passo; end
-        case 'downarrow',  if d.pos(num_bloco, 2)>1 d.pos(num_bloco, 2) = d.pos(num_bloco, 2) - passo; end
-        case 'leftarrow',  if d.pos(num_bloco, 1)>1 d.pos(num_bloco, 1) = d.pos(num_bloco, 1) - passo; end
-        case 'rightarrow', if d.pos(num_bloco, 1)<d.n d.pos(num_bloco, 1) = d.pos(num_bloco, 1) + passo; end
-        case 'escape'
-            set(src, 'KeyPressFcn', '');
-        case 'space'
-            d.pos(num_bloco, 3) = d.pos(num_bloco, 3)-dif;
-
-    end
-    
-    if d.pos(num_bloco, 3) <= d.map(pos_bloco, 4) + 1
-        d.map(pos_bloco, :) = d.map(pos_bloco, :) + 1;
-        d.pos = [d.pos; d.pos(num_bloco, 1) d.pos(num_bloco, 2) d.h];
-    end
-
-    if all(d.map)
-        [I, J] = find(d.pos(:, 3) > 1);
-        d.pos = d.pos(I, :);
-        d.pos(1:end-1, 3) = d.pos(1:end-1, 3) - 1;
-        d.map = d.map - 1;
-    end
-    % Guarda os novos dados e redesenha
     set(src, 'UserData', d);
-    drawcube(src);
-    %}
+
+
 end
 
 function atualizarTempo(fig_handle, t_obj)
-    %{
-        if ishandle(fig_handle)
-        d = get(fig_handle, 'UserData');
-        num_bloco = size(d.pos, 1);
-        pos_bloco = d.pos(num_bloco, 1) + d.n*(d.pos(num_bloco, 2) - 1);
-        if d.pos(num_bloco, 3) <= d.map(pos_bloco, 4) + 1
-            d.map(pos_bloco, :) = d.map(pos_bloco, :) + 1;
-            d.pos = [d.pos; d.pos(num_bloco, 1) d.pos(num_bloco, 2) d.h];
-        else
-            d.pos(num_bloco, 3) = d.pos(num_bloco, 3) - 1;
-        end
 
-        if all(d.map)
-            [I, J] = find(d.pos(:, 3) > 1);
-            d.pos = d.pos(I, :);
-            d.pos(1:end-1, 3) = d.pos(1:end-1, 3) - 1;
-            d.map = d.map - 1;
-        end
-
-        if d.map(pos_bloco, 4) == 9
-            stop_and_delete_safe(t_obj);
-            set(fig_handle, 'KeyPressFcn', '');
-            close(fig_handle);
-        end
-  
-        set(fig_handle, 'UserData', d);
-    end
-    drawcube(fig_handle);
-    %}
 
 end
 
@@ -157,41 +95,26 @@ function drawcube(fig_handle)
     d = get(fig_handle, 'UserData');
     ax = gca;
     cla(ax);
-    num_bloco = size(d.blocos, 1);
-    pos_bloco = d.blocos(num_bloco).pos(1) + d.n*(d.blocos(num_bloco).pos(2) - 1);
-    if d.blocos(num_bloco).pos(3) <= d.map(pos_bloco, 4) + 1
-        d.blocos = [d.blocos; Blocos([d.blocos(num_bloco).pos(1:2), d.h])];
-    end
-    for i = 1:num_bloco
-        t_bloco_aux_x = d.cell_x;
-        t_bloco_aux_y = d.cell_y;
-        I = find(t_bloco_aux_x == 1);
-        t_bloco_aux_x(I) = t_bloco_aux_x(I) + d.blocos(i).ori(1);
-        I = find(t_bloco_aux_y == 1);
-        t_bloco_aux_y(I) = t_bloco_aux_y(I) + d.blocos(i).ori(2);
-        for j = 1:6
-            patch(d.blocos(i).pos(1) + t_bloco_aux_x(j, :) - 1, d.blocos(i).pos(2) + t_bloco_aux_y(j, :) - 1, ...
-                d.blocos(i).pos(3) + d.cell_z(j, :) - 1, d.blocos(i).color);
+    
+    for i = 1:d.n
+        for j = 1:d.n
+            for k = 1:d.h
+                if d.tab.check(i, j, k)
+                    for f = 1:6
+                        patch(i + d.cell_x(f, :) - 1, j + d.cell_y(f, :) - 1, k + d.cell_z(f, :) - 1, d.colors(d.tab.color(i, j, k), :));
+                    end
+                end
+            end
         end
     end
 
+    for n = 1:d.blocos.len
+        for f = 1:6
+            patch(d.blocos.x(n) + d.cell_x(f, :) - 1, d.blocos.y(n) + d.cell_y(f, :) - 1, d.blocos.z(n) + d.cell_z(f, :) - 1, d.blocos.color);
+        end
+    end
     set(fig_handle, 'UserData', d);
 
-
-    %{
-    d = get(fig_handle, 'UserData');
-    ax = gca;
-    cla(ax); % Limpa o desenho anterior para não deixar rasto
-    f = size(d.x, 1);
-    num_bloco = size(d.pos, 1);
-    for j = 1:num_bloco
-        for i = 1:f
-            patch(d.pos(j, 1) + d.x(i, :) - 1,d.pos(j, 2) + d.y(i, :) - 1,d.pos(j, 3) + d.z(i, :) - 1,[0 0 1]);
-        end
-    end
-    pos_bloco = d.pos(num_bloco, 1) + d.n*(d.pos(num_bloco, 2)-1);
-    patch(d.pos(num_bloco, 1) + d.x(3, :) - 1,d.pos(num_bloco, 2) + d.y(3, :) - 1, d.map(pos_bloco, :), [0 0 0]);
-    %}
 end
 
 function stop_and_delete_safe(t_obj)

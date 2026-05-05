@@ -151,7 +151,7 @@ function drawmap(fig_handle)
                 d.map(:, :, l) = d.map(:, :, l+1);
             end
             d.map(:, :, d.h) = 0; 
-            t.Period = max(0.1, t.Period - 0.1);
+            t.Period = max(0.1, t.Period - 0.05);
             start(t);
         end
     end
@@ -216,7 +216,6 @@ function timer_callback(fig_handle)
     d = get(fig_handle, 'UserData');
     if d.pos_pivo(3) > 1
         d.pos_pivo(3) = d.pos_pivo(3) - 1;
-    end
     set(fig_handle, 'UserData', d);
     drawmap(fig_handle);
 end
