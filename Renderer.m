@@ -57,7 +57,7 @@ classdef Renderer < handle
 
             pos_futura = this.Game_.PecaAtiva_.GetPosFutura();
             patch(this.Eixos_, 'Vertices', forma_v + pos_futura - 1, 'Faces', forma_f, ...
-                'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.25);
+                'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.50);
                 
             
             patch(this.Eixos_, 'Vertices', forma_v + pos - 1, 'Faces', forma_f, ...

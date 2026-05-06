@@ -30,7 +30,7 @@ classdef Game < handle
             this.ConfigurarInterface();
 
             % Criar a primeira peça
-            this.PecaAtiva_ = PecaAtiva([3, 3, this.Height_], this);
+            this.PecaAtiva_ = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
 
             t_antigos = timerfind;
             if ~isempty(t_antigos)
