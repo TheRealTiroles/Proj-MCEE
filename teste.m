@@ -1,5 +1,7 @@
 close all;
 
+
+
 dados.n = 5;
 dados.h = 10;
 t_antigos = timerfind;

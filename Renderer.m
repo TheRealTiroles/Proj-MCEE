@@ -1,47 +1,69 @@
 classdef Renderer < handle
     properties
-        window;
+        Game_;
+        Fig_;
+        Eixos_;
     end
 
     methods 
-        function this = Renderer(handlerObj)
-            this.window = figure('KeyPressFcn', @(~, evento) handlerObj.ReadInputs(evento));
+        function this = Renderer(game)
+            this.Game_ = game;
+
+            this.Fig_ = [];
+            this.Eixos_ = [];
         end
 
-        function desenharCuboUnitario(parentNode, offset, cor)
-            V = [0 0 0; 1 0 0; 1 1 0; 0 1 0; 0 0 1; 1 0 1; 1 1 1; 0 1 1] - 0.5;
-            
-            V = V + offset; 
-            
-            F = [1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 1 2 3 4; 5 6 7 8];
-            
-            patch('Vertices', V, 'Faces', F, 'FaceColor', cor, ...
-                  'EdgeColor', 'k', 'Parent', parentNode);
+        function ChangeView(this, vista_id)
+            switch vista_id
+                case 1, view(this.Eixos_, [0 0 this.Game_.Height_]);
+                case 2, view(this.Eixos_, [0 this.Game_.Width_ 0]);
+                case 3, view(this.Eixos_, [this.Game_.Width_ 0 0]);
+                case 4, view(this.Eixos_, 3);
+            end
         end
 
-        function drawGameObjects(this, game)
+       function Draw(this)
+            cla(this.Eixos_);
+            
+            v_unit = [0 0 0; 1 0 0; 1 1 0; 0 1 0; 0 0 1; 1 0 1; 1 1 1; 0 1 1];
+            f_unit = [1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 1 2 3 4; 5 6 7 8];
+            cores = [0 1 1; 0 1 0; 1 1 0; 0 0 1; 1 0 1; 1 0.5 0; 0.5 0 0.5; 1 0 0];
+            
 
-            for i = 1:lenght(game)
-
-                mainNode = game.objects{i}.mainNode;
-                cor = game.objects{i};
-                for j = 1:4
-                    
-                    offset = game.objects{i}.blockPositions(j, :);
-                    
-                    this.desenharCuboUnitario(mainNode, offset, cor);
-
+            for i = 1:this.Game_.Width_
+                for j = 1:this.Game_.Width_
+                    for k = 1:this.Game_.Height_
+                        cor_idx = this.Game_.Map_(i, j, k);
+                        if cor_idx ~= 0
+                            v_temp = v_unit + [i-1, j-1, k-1];
+                            patch(this.Eixos_, 'Vertices', v_temp, 'Faces', f_unit, ...
+                                  'FaceColor', cores(cor_idx, :), 'FaceAlpha', 0.75);
+                        end
+                    end
                 end
             end
-
-
-        end
-    end
-    methods(Static)
-        function drawFrame(game)
+            forma = this.Game_.PecaAtiva_.Shape_;
+            pos = this.Game_.PecaAtiva_.PosicaoPivo_;
+            tipo = this.Game_.PecaAtiva_.Tipo_;
             
-
+            forma_v = v_unit;
+            forma_f = f_unit;
+            if size(forma, 1) > 1
+                for f = 2:size(forma, 1)
+                    forma_v = [forma_v; v_unit + forma(f, :)];
+                    forma_f = [forma_f; f_unit + (f-1)*8];
+                end
+            end
             
+            patch(this.Eixos_, 'Vertices', forma_v + pos - 1, 'Faces', forma_f, ...
+                  'FaceColor', cores(tipo, :), 'FaceAlpha', 0.75);
+
+            pos_futura = this.Game_.PecaAtiva_.GetPosFutura();
+            patch(this.Eixos_, 'Vertices', forma_v + pos_futura - 1, 'Faces', forma_f, ...
+                'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.25);
+                  
+            drawnow;
         end
+
     end
 end
