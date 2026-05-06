@@ -54,14 +54,14 @@ classdef Renderer < handle
                     forma_f = [forma_f; f_unit + (f-1)*8];
                 end
             end
-            
-            patch(this.Eixos_, 'Vertices', forma_v + pos - 1, 'Faces', forma_f, ...
-                  'FaceColor', cores(tipo, :), 'FaceAlpha', 0.75);
 
             pos_futura = this.Game_.PecaAtiva_.GetPosFutura();
             patch(this.Eixos_, 'Vertices', forma_v + pos_futura - 1, 'Faces', forma_f, ...
                 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.25);
-                  
+                
+            
+            patch(this.Eixos_, 'Vertices', forma_v + pos - 1, 'Faces', forma_f, ...
+                  'FaceColor', cores(tipo, :), 'FaceAlpha', 0.75); 
             drawnow;
         end
 
