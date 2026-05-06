@@ -19,6 +19,7 @@ classdef InputHandler < handle
                 return;
             end
             
+            fprintf(event.Key)
             
             switch event.Key
                 case 'uparrow'
@@ -40,8 +41,10 @@ classdef InputHandler < handle
                    this.Game_.ChangeView(3);
                 case '4'
                     this.Game_.ChangeView(4);
+                case 'esc'
+                    this.Game_.EmJogo_ = false;
             end
-            this.Game_.Renderer_.Draw();
+            this.Game_.Renderer_.DrawPecaAtiva();
         end
     end
 end
