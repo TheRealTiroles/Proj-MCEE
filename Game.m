@@ -56,9 +56,10 @@ classdef Game < handle
             view(this.Renderer_.Eixos_, 3);
             
 
-            xlim(this.Renderer_.Eixos_, [0, this.Width_]); 
-            ylim(this.Renderer_.Eixos_, [0, this.Width_]); 
-            zlim(this.Renderer_.Eixos_, [0, this.Height_]);
+            xlim(this.Renderer_.Eixos_, [0, this.Width_]); xlabel('x'); xticks(0:this.Width_);
+            ylim(this.Renderer_.Eixos_, [0, this.Width_]); ylabel('y'); yticks(0:this.Width_);
+            zlim(this.Renderer_.Eixos_, [0, this.Height_]); zlabel('z'); zticks(0:this.Height_);
+     
         end
 
         function ChangeView(this, x)

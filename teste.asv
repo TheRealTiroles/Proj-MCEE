@@ -1,6 +1,12 @@
 close all;
 
-
+fig = figure('KeyPressFcn', @keyboardCallback);
+axis equal;
+xlim([0, dados.n]); xlabel('x'); xticks(0:dados.n);
+ylim([0, dados.n]); ylabel('y'); yticks(0:dados.n);
+zlim([0, dados.h]); zlabel('z'); zticks(0:dados.h);
+grid on;
+view(3);
 
 dados.n = 5;
 dados.h = 10;
@@ -10,14 +16,6 @@ if ~isempty(t_antigos)
     delete(t_antigos);
 end
 
-
-fig = figure('KeyPressFcn', @keyboardCallback);
-axis equal;
-xlim([0, dados.n]); xlabel('x'); xticks(0:dados.n);
-ylim([0, dados.n]); ylabel('y'); yticks(0:dados.n);
-zlim([0, dados.h]); zlabel('z'); zticks(0:dados.h);
-grid on;
-view(3);
 
 
 map = zeros(dados.n, dados.n, dados.h+2);
@@ -259,4 +257,5 @@ function colisao = check_colision(shape, nova_pos, c, l, a, map)
         end
      end
 end
+
 
