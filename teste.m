@@ -18,7 +18,7 @@ grid on;
 view(3);
 
 
-map = zeros(dados.n, dados.n, dados.h);
+map = zeros(dados.n, dados.n, dados.h+2);
 
 dados.map = map;
 
@@ -41,70 +41,51 @@ start(t);
 
 function keyboardCallback(fig_handle, event)
     d = get(fig_handle, 'UserData');
+    nova_pos = 0;
     switch event.Key
         case 'uparrow'
             nova_pos = d.pos_pivo + [0 1 0];
-            colisao = false;
-            for n = 1:size(d.shape, 1)
-                bloco = d.shape(n, :) + nova_pos;
-                if bloco(2) < 1 || bloco(2) > d.n
-                    colisao = true;
-                elseif d.map(bloco(1), bloco(2), min(bloco(3), d.h)) ~= 0
-                    colisao = true;
-                end
-            end
+            colisao = check_colision(d.shape, nova_pos, 2, d.n, d.h, d.map);
             if ~colisao
                 d.pos_pivo = nova_pos;
             end
         case 'downarrow'
             nova_pos = d.pos_pivo + [0 -1 0];
-            colisao = false;
-            for n = 1:size(d.shape, 1)
-                bloco = d.shape(n, :) + nova_pos;
-                if bloco(2) < 1 || bloco(2) > d.n
-                    colisao = true;
-                elseif d.map(bloco(1), bloco(2), min(bloco(3), d.h)) ~= 0
-                    colisao = true;
-                end
-            end
+            colisao = check_colision(d.shape, nova_pos, 2, d.n, d.h, d.map);
             if ~colisao
                 d.pos_pivo = nova_pos;
             end
         case 'rightarrow'
             nova_pos = d.pos_pivo + [1 0 0];
-            colisao = false;
-            for n = 1:size(d.shape, 1)
-                bloco = d.shape(n, :) + nova_pos;
-                if bloco(1) < 1 || bloco(1) > d.n
-                    colisao = true;
-                elseif d.map(bloco(1), bloco(2), min(bloco(3), d.h)) ~= 0
-                    colisao = true;
-                end
-            end
+            colisao = check_colision(d.shape, nova_pos, 1, d.n, d.h, d.map);
             if ~colisao
                 d.pos_pivo = nova_pos;
             end
         case 'leftarrow'
             nova_pos = d.pos_pivo + [-1 0 0];
-            colisao = false;
-            for n = 1:size(d.shape, 1)
-                bloco = d.shape(n, :) + nova_pos;
-                if bloco(1) < 1 || bloco(1) > d.n
-                    colisao = true;
-                elseif d.map(bloco(1), bloco(2), min(bloco(3), d.h)) ~= 0
-                    colisao = true;
-                end
-            end
+            colisao = check_colision(d.shape, nova_pos, 1, d.n, d.h, d.map);
             if ~colisao
                 d.pos_pivo = nova_pos;
             end
         case 'space'
             d.pos_pivo = d.pos_futura;
+        case '1'
+            view([0 0 d.h]);
+        case '2'
+            view([0 d.n 0]);
+        case '3'
+            view([d.n 0 0]);
+        case '4'
+            view(3);
     end
 
     set(fig_handle, 'UserData', d);
     
-    drawmap(fig_handle);
+        
+    if all(d.pos_pivo == nova_pos) || all(d.pos_pivo == d.pos_futura)
+        drawmap(fig_handle);
+    end
+
 
 end
 
@@ -116,10 +97,13 @@ function drawmap(fig_handle)
     cla(ax);
     v_unit = [0 0 0; 1 0 0; 1 1 0; 0 1 0; 0 0 1; 1 0 1; 1 1 1; 0 1 1];
     f_unit = [1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 1 2 3 4; 5 6 7 8];
-    color = [0.30 0.50 0.95
+    color = [0    1    1
              0    1    0
-             1    0    0
-             0    1    0
+             1    1    0
+             0    0    1
+             1    0    1
+             1    0.5  0
+             0.5  0    0.5
              1    0    0];
 
     d.pos_futura = get_pos_futura(d.shape, d.pos_pivo, d.map);
@@ -188,17 +172,15 @@ function drawmap(fig_handle)
 end
 
 function [v_peca, type] = random_peca
-    type = randi(5);
+    type = randi(8);
     switch type
         case 1
             v_peca = [0 0 0];
         case 2
             v_peca = [0 0 0
-                      0 1 0];
+                      0 0 1];
         case 3
             v_peca = [0 0 0
-                      0 0 1
-                      0 1 1
                       0 1 0];
         case 4
             v_peca = [0 0 0
@@ -206,8 +188,25 @@ function [v_peca, type] = random_peca
         case 5
             v_peca = [0 0 0
                       0 0 1
+                      0 0 2];
+        case 6
+            v_peca = [0 0 0
+                      0 1 0
+                      0 2 0];
+        case 7
+            v_peca = [0 0 0
+                      1 0 0
+                      2 0 0];
+        case 8
+            v_peca = [0 0 0
+                      0 0 1
+                      0 1 0
+                      0 1 1
+                      1 0 0
                       1 0 1
-                      1 0 0];
+                      1 1 0
+                      1 1 1];
+        
     end
 end
 
@@ -245,6 +244,18 @@ function pos_futura = get_pos_futura(shape, pos_pivo, map)
     end
     
     pos_futura = pos_pivo + [0, 0, h_poss + 1 - pos_pivo(3)];
+end
+
+function colisao = check_colision(shape, nova_pos, c, l, a, map)
+    colisao = false;
+    for n = 1:size(shape, 1)
+        bloco = shape(n, :) + nova_pos;
+        if bloco(c) < 1 || bloco(c) > l
+            colisao = true;
+        elseif map(bloco(1), bloco(2), min(bloco(3), a)) ~= 0
+            colisao = true;
+        end
+     end
 end
 
 
