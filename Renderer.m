@@ -75,11 +75,16 @@ classdef Renderer < handle
                 drawnow;
         end
 
-       function Draw(this)
+       function DrawGame(this)
             cla(this.Eixos_);
     
             this.DrawBlocosPosicionados();
             this.DrawPecaAtiva();
+        end
+
+        function DrawPauseMenu(this)
+            
+
         end
 
     end

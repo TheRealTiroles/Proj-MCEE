@@ -29,7 +29,6 @@ classdef Game < handle
 
             this.ConfigurarInterface();
 
-            % Criar a primeira peça
             this.PecaAtiva_ = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
 
             t_antigos = timerfind;
@@ -72,7 +71,7 @@ classdef Game < handle
             if ~colisao
                 this.PecaAtiva_.MoverPara(nova_pos);
             end
-            this.Renderer_.Draw();
+            this.Renderer_.DrawGame();
         end
 
         function colisao = check_colision(this, Peca, nova_pos, c)
@@ -152,7 +151,7 @@ classdef Game < handle
                     end
                 end
             end            
-            this.Renderer_.Draw();
+            this.Renderer_.DrawGame();
         end
 
         function FreeFall(this)
