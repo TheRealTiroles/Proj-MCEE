@@ -41,6 +41,9 @@ classdef Game < handle
             this.Clock_ = timer('ExecutionMode', 'fixedRate', 'Period',...
                 1, 'TimerFcn', @(src, event) this.ClockTick());
 
+
+            set(this.Renderer_.Fig_, 'DeleteFcn', @(~,~) delete(this));
+            
             start(this.Clock_);
 
             
