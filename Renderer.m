@@ -68,7 +68,7 @@ classdef Renderer < handle
             patch(this.Eixos_, 'Vertices', forma_v + pos_futura - 1, 'Faces', forma_f, ...
                 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.50);
                 
-            % Posição atual (Peça Ativa)
+
             patch(this.Eixos_, 'Vertices', forma_v + pos - 1, 'Faces', forma_f, ...
                 'FaceColor', cores(tipo, :), 'FaceAlpha', 0.90); 
 

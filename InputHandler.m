@@ -13,9 +13,8 @@ classdef InputHandler < handle
         end
 
 
-
         function TecladoCallback(this, ~, event)
-            if ~this.Game_.EmJogo_
+            if this.Game_.GameState_ ~= GameState.Playing
                 return;
             end
             
@@ -41,8 +40,6 @@ classdef InputHandler < handle
                    this.Game_.ChangeView(3);
                 case '4'
                     this.Game_.ChangeView(4);
-                case 'esc'
-                    this.Game_.EmJogo_ = false;
             end
             this.Game_.Renderer_.DrawPecaAtiva();
         end
