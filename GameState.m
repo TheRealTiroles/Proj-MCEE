@@ -1,5 +1,5 @@
 classdef GameState 
     enumeration
-        Menu, Playing, GameOver, Paused
+        Menu, Playing, GameOver, Paused, Wait
     end
 end

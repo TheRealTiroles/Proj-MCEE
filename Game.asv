@@ -14,6 +14,7 @@ classdef Game < handle
         InputHandler_;
 
         GameState_;
+        PauseOpt_;
 
         WaitTime_;
     end
@@ -24,6 +25,7 @@ classdef Game < handle
             this.Width_ = width;  
             this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
             this.GameState_ = GameState.Playing;
+            this.PauseOpt_ = PauseOpt.Back;
             this.WaitTime_ = 3;
             
             this.InputHandler_ = InputHandler(this);

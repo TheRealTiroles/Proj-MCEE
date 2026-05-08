@@ -90,8 +90,9 @@ classdef Renderer < handle
         end
 
         function DrawWaitTime(this)
-            if isempty(this.Txt_) || ~all(isgraphics(this.Txt_))
-                this.Txt_(1) = text(0.5, 0.5, '', ...
+            delete(this.Txt_);
+            
+            this.Txt_ = text(0.5, 0.5, this.Game_.WaitTime_, ...
                 'Units', 'normalized', ...           % Usa escala de 0 a 1 da área do gráfico
                 'HorizontalAlignment', 'center', ... % Centraliza horizontalmente
                 'VerticalAlignment', 'middle', ...   % Centraliza verticalmente
@@ -99,7 +100,8 @@ classdef Renderer < handle
                 'FontWeight', 'bold', ...            % Negrito para destacar
                 'Color', [0 0 0], ...                % Cor (ex: Vermelho)
                 'Clipping', 'off');
-            this.Txt_(2) = text(0.5, 0.5, '', ...
+            %{
+            this.Txt_ = text(0.5, 0.5, this.Game_.WaitTime_, ...
                 'Units', 'normalized', ...           % Usa escala de 0 a 1 da área do gráfico
                 'HorizontalAlignment', 'center', ... % Centraliza horizontalmente
                 'VerticalAlignment', 'middle', ...   % Centraliza verticalmente
@@ -107,16 +109,11 @@ classdef Renderer < handle
                 'FontWeight', 'bold', ...            % Negrito para destacar
                 'Color', [1 0 0], ...                % Cor (ex: Vermelho)
                 'Clipping', 'off');
-            end
-            
-            
-            
-            if this.Game_.WaitTime_ < 0
-                set(this.Txt_, 'Visible', 'off');
+            %}
+            time = str2double(this.Game_.WaitTime_)
+            if time < 0
                 return;
             else
-                str = num2str(this.Game_.WaitTime_);
-                set(this.Txt_, 'Visible', 'on', 'String', str);
                 this.Game_.WaitTime_ = this.Game_.WaitTime_ - 1;
             end
         end

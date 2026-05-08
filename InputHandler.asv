@@ -43,7 +43,7 @@ classdef InputHandler < handle
 
             switch event.Key
                 case 'escape'
-                    this.Game_.GameState_ = GameState.Wait;
+                    this.Game_.GameState_ = GameState.Playing;
             end
 
         end
