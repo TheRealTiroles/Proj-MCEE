@@ -87,5 +87,11 @@ classdef Renderer < handle
 
         end
 
+        function DrawGameOver(this)
+
+            title(this.Eixos_, 'GAME OVER!', 'FontSize', 20, 'Color', 'r');
+
+        end
+
     end
 end

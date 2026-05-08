@@ -48,6 +48,10 @@ classdef InputHandler < handle
 
         end
 
+        function InputHandlerMenu(this, event)
+
+        end
+
         function TecladoCallback(this, ~, event)
             if this.Game_.GameState_ == GameState.Playing
                 this.InputHandlerGame(event);
@@ -55,6 +59,8 @@ classdef InputHandler < handle
             elseif this.Game_.GameState_ == GameState.Paused
                 this.InputHandlerPaused(event);
 
+            elseif this.Game_.GameState_ == GameState.Menu
+                this.InputHandlerMenu(event);
             end
             
         end
