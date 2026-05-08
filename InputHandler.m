@@ -12,14 +12,7 @@ classdef InputHandler < handle
 
         end
 
-
-
-        function TecladoCallback(this, ~, event)
-            if ~this.Game_.EmJogo_
-                return;
-            end
-            
-            
+        function InputHandlerGame(this, event)
             switch event.Key
                 case 'uparrow'
                    this.Game_.TryMoveBlock([0 1 0], 2);
@@ -40,8 +33,30 @@ classdef InputHandler < handle
                    this.Game_.ChangeView(3);
                 case '4'
                     this.Game_.ChangeView(4);
+                case 'escape'
+                    this.Game_.GameState_ = GameState.Paused;
             end
-            this.Game_.Renderer_.Draw();
+            this.Game_.Renderer_.DrawPecaAtiva();
+        end
+
+        function InputHandlerPaused(this, event)
+
+            switch event.Key
+                case 'escape'
+                    this.Game_.GameState_ = GameState.Playing;
+            end
+
+        end
+
+        function TecladoCallback(this, ~, event)
+            if this.Game_.GameState_ == GameState.Playing
+                this.InputHandlerGame(event);
+            
+            elseif this.Game_.GameState_ == GameState.Paused
+                this.InputHandlerPaused(event);
+
+            end
+            
         end
     end
 end

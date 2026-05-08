@@ -13,7 +13,7 @@ classdef Game < handle
         Renderer_;
         InputHandler_;
 
-        EmJogo_; %bool
+        GameState_;
     end
 
     methods
@@ -21,7 +21,7 @@ classdef Game < handle
             this.Height_ = height;
             this.Width_ = width;  
             this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
-            this.EmJogo_ = true;
+            this.GameState_ = GameState.Playing;
             
             this.InputHandler_ = InputHandler(this);
 
@@ -29,8 +29,7 @@ classdef Game < handle
 
             this.ConfigurarInterface();
 
-            % Criar a primeira peça
-            this.PecaAtiva_ = PecaAtiva([3, 3, this.Height_], this);
+            this.PecaAtiva_ = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
 
             t_antigos = timerfind;
             if ~isempty(t_antigos)
@@ -75,7 +74,7 @@ classdef Game < handle
             if ~colisao
                 this.PecaAtiva_.MoverPara(nova_pos);
             end
-            this.Renderer_.Draw();
+            this.Renderer_.DrawGame();
         end
 
         function colisao = check_colision(this, Peca, nova_pos, c)
@@ -91,7 +90,7 @@ classdef Game < handle
         end
 
         function ClockTick(this)
-            if ~this.EmJogo_
+            if this.GameState_ ~= GameState.Playing
                 return;
             end
 
@@ -155,11 +154,11 @@ classdef Game < handle
                     end
                 end
             end            
-            this.Renderer_.Draw();
+            this.Renderer_.DrawGame();
         end
 
         function FreeFall(this)
-            if ~this.EmJogo_
+            if this.GameState_ ~= GameState.Playing
                 return;
             end
             
@@ -184,7 +183,7 @@ classdef Game < handle
 
 
         function GameOver(this)
-            this.EmJogo_ = false;
+            this.GameState_ = GameState.GameOver;
             stop(this.Clock_);
             title(this.Renderer_.Eixos_, 'GAME OVER!', 'FontSize', 20, 'Color', 'r');
         end
