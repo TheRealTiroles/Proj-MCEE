@@ -89,29 +89,41 @@ classdef Renderer < handle
 
         end
 
+        function DrawMenu(this)
+            clf;
+            this.Eixos_ = axes('Visible', 'off');
+            opcoes = enumeration('MenuOpt');
+            pos = [0.8, 0.6, 0.4, 0.2];
+            for i = 1:4
+                if opcoes(i) == this.Game_.MenuOpt_
+                    texto = sprintf('> %s <', char(opcoes(i)));
+                else
+                    texto = char(opcoes(i));
+                end
+                text(0.45, pos(i), texto, 'FontSize', 30);
+            end
+        end
+
 
         function DrawWaitTime(this)
             if isempty(this.Txt_) || ~all(isgraphics(this.Txt_))
                 this.Txt_(1) = text(0.5, 0.5, '', ...
-                'Units', 'normalized', ...           % Usa escala de 0 a 1 da área do gráfico
-                'HorizontalAlignment', 'center', ... % Centraliza horizontalmente
-                'VerticalAlignment', 'middle', ...   % Centraliza verticalmente
-                'FontSize', 105, ...                 % Tamanho grande
-                'FontWeight', 'bold', ...            % Negrito para destacar
-                'Color', [0 0 0], ...                % Cor (ex: Vermelho)
+                'Units', 'normalized', ...           
+                'HorizontalAlignment', 'center', ... 
+                'VerticalAlignment', 'middle', ...   
+                'FontSize', 105, ...                 
+                'FontWeight', 'bold', ...            
+                'Color', [0 0 0], ...                
                 'Clipping', 'off');
             this.Txt_(2) = text(0.5, 0.5, '', ...
-                'Units', 'normalized', ...           % Usa escala de 0 a 1 da área do gráfico
-                'HorizontalAlignment', 'center', ... % Centraliza horizontalmente
-                'VerticalAlignment', 'middle', ...   % Centraliza verticalmente
-                'FontSize', 100, ...                 % Tamanho grande
-                'FontWeight', 'bold', ...            % Negrito para destacar
-                'Color', [1 0 0], ...                % Cor (ex: Vermelho)
+                'Units', 'normalized', ...           
+                'HorizontalAlignment', 'center', ... 
+                'VerticalAlignment', 'middle', ...   
+                'FontSize', 100, ...                 
+                'FontWeight', 'bold', ...            
+                'Color', [1 0 0], ...                
                 'Clipping', 'off');
             end
-            
-            
-            
             if this.Game_.WaitTime_ < 0
                 set(this.Txt_, 'Visible', 'off');
                 return;

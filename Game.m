@@ -16,6 +16,7 @@ classdef Game < handle
         GameState_;
 
         WaitTime_;
+        MenuOpt_;
     end
 
     methods
@@ -23,40 +24,22 @@ classdef Game < handle
             this.Height_ = height;
             this.Width_ = width;  
             this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
-            this.GameState_ = GameState.Playing;
+            this.GameState_ = GameState.Menu;
             this.WaitTime_ = 3;
+            this.MenuOpt_ = MenuOpt.Start;
+            this.Clock_ = [];
             
             this.InputHandler_ = InputHandler(this);
 
             this.Renderer_ = Renderer(this);
 
-            this.ConfigurarInterface();
-
-            this.PecaAtiva_ = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
-
-            t_antigos = timerfind;
-            if ~isempty(t_antigos)
-                stop(t_antigos);
-                delete(t_antigos);
-            end
-
-            this.Clock_ = timer('ExecutionMode', 'fixedRate', 'Period',...
-                1, 'TimerFcn', @(src, event) this.ClockTick());
-
-
-            set(this.Renderer_.Fig_, 'DeleteFcn', @(~,~) delete(this));
-            
-            start(this.Clock_);
-
-            
+            this.ConfigurarInterfaceMenu();
             
         end
     
-        function ConfigurarInterface(this)
-            this.Renderer_.Fig_ = figure('Name', 'Tetris', ...
-                                'ToolBar', 'none', ...
-                                'Menu', 'none', ...
-                                'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
+        function ConfigurarInterfaceJogo(this)
+            clf(this.Renderer_.Fig_);
+            set(this.Renderer_.Fig_, 'Name', 'Tetris');
             this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_);
             axis(this.Renderer_.Eixos_, 'equal');
             grid(this.Renderer_.Eixos_, 'on');
@@ -66,7 +49,19 @@ classdef Game < handle
             xlim(this.Renderer_.Eixos_, [0, this.Width_]); xlabel('x'); xticks(0:this.Width_);
             ylim(this.Renderer_.Eixos_, [0, this.Width_]); ylabel('y'); yticks(0:this.Width_);
             zlim(this.Renderer_.Eixos_, [0, this.Height_]); zlabel('z'); zticks(0:this.Height_);
-     
+
+            this.StartGame();
+        end
+
+        function ConfigurarInterfaceMenu(this)
+            this.Renderer_.Fig_ = figure('Name', 'Menu Tetris', ...
+                                'ToolBar', 'none', ...
+                                'Menu', 'none', ...
+                                'WindowState', 'maximized', ...
+                                'NumberTitle', 'off', ...
+                                'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
+            this.Renderer_.Eixos_ = axes('Visible', 'off');
+            this.Renderer_.DrawMenu();
         end
 
         function ChangeView(this, x)
@@ -192,7 +187,24 @@ classdef Game < handle
             
             this.ClockTick();
         end
+        
+        function StartGame(this)
+            this.PecaAtiva_ = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
 
+            t_antigos = timerfind;
+            if ~isempty(t_antigos)
+                stop(t_antigos);
+                delete(t_antigos);
+            end
+
+            this.Clock_ = timer('ExecutionMode', 'fixedRate', 'Period',...
+                1, 'TimerFcn', @(src, event) this.ClockTick());
+
+
+            set(this.Renderer_.Fig_, 'DeleteFcn', @(~,~) delete(this));
+            
+            start(this.Clock_);
+        end
 
         function GameOver(this)
             this.GameState_ = GameState.GameOver;
@@ -202,10 +214,13 @@ classdef Game < handle
 
 
         function delete(this)
-            t_antigos = timerfind;            
-            if isvalid(this.Clock_)
-                stop(this.Clock_);
-                delete(this.Clock_);
+            t_antigos = timerfind; 
+            delete(this.Renderer_.Fig_);
+            if ~isempty(this.Clock_)
+                if isvalid(this.Clock_)
+                    stop(this.Clock_);
+                    delete(this.Clock_);
+                end
             end
         end
 

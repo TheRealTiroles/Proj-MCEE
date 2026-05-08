@@ -49,7 +49,34 @@ classdef InputHandler < handle
         end
 
         function InputHandlerMenu(this, event)
-
+            opcoes = enumeration('MenuOpt');
+            indice_atual = find(opcoes == this.Game_.MenuOpt_);
+            switch event.Key
+                case 'return'
+                    switch this.Game_.MenuOpt_
+                        case MenuOpt.Start
+                            this.Game_.GameState_ = GameState.Playing;
+                            this.Game_.ConfigurarInterfaceJogo();
+                        case MenuOpt.Statistics
+                        case MenuOpt.Settings
+                        case MenuOpt.Quit
+                            delete(this.Game_);
+                    end
+                case 'uparrow'
+                    if indice_atual < 2
+                        this.Game_.MenuOpt_ = opcoes(find(opcoes == this.Game_.MenuOpt_) + 3);
+                    else
+                        this.Game_.MenuOpt_ = opcoes(find(opcoes == this.Game_.MenuOpt_) - 1);
+                    end
+                    this.Game_.Renderer_.DrawMenu();
+                case 'downarrow'
+                    if indice_atual > 3
+                        this.Game_.MenuOpt_ = opcoes(find(opcoes == this.Game_.MenuOpt_) - 3);
+                    else
+                        this.Game_.MenuOpt_ = opcoes(find(opcoes == this.Game_.MenuOpt_) + 1);
+                    end
+                    this.Game_.Renderer_.DrawMenu();
+            end
         end
 
         function TecladoCallback(this, ~, event)
