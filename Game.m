@@ -195,7 +195,7 @@ classdef Game < handle
         function GameOver(this)
             this.GameState_ = GameState.GameOver;
             stop(this.Clock_);
-            title(this.Renderer_.Eixos_, 'GAME OVER!', 'FontSize', 20, 'Color', 'r');
+            this.Renderer_.DrawGameOver();
         end
 
 

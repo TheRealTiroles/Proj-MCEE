@@ -89,6 +89,7 @@ classdef Renderer < handle
 
         end
 
+
         function DrawWaitTime(this)
             if isempty(this.Txt_) || ~all(isgraphics(this.Txt_))
                 this.Txt_(1) = text(0.5, 0.5, '', ...
@@ -120,5 +121,13 @@ classdef Renderer < handle
                 this.Game_.WaitTime_ = this.Game_.WaitTime_ - 1;
             end
         end
+
+        function DrawGameOver(this)
+
+            title(this.Eixos_, 'GAME OVER!', 'FontSize', 20, 'Color', 'r');
+
+        end
+
+
     end
 end
