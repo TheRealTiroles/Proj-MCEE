@@ -263,6 +263,7 @@ classdef Game < handle
             this.GameState_ = GameState.GameOver;
             stop(this.Clock_);
             this.Renderer_.DrawGameOver();
+            this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
         end
 
 
