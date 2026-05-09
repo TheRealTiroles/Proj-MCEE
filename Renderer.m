@@ -138,7 +138,7 @@ classdef Renderer < handle
                 'Color', [1 0 0], ...                
                 'Clipping', 'off');
             end
-            if this.Game_.WaitTime_ < 0
+            if this.Game_.WaitTime_ <= 0
                 set(this.Txt_, 'Visible', 'off');
                 return;
             else

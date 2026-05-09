@@ -7,6 +7,7 @@ classdef Game < handle
         PecaAtiva_;
 
         Clock_;
+        ClockWait_;
 
     
         PosFutura_;
@@ -28,6 +29,7 @@ classdef Game < handle
             
             this.Clock_ = [];
             this.WaitTime_ = 3;
+            this.ClockWait_ = [];
 
             this.MenuOpt_ = MenuOpt.Start;
             this.PauseMenuOpt_ = PauseMenuOpt.Continue;
@@ -127,14 +129,20 @@ classdef Game < handle
              end
         end
 
-        function ClockTick(this)
+        function WaitTick(this)
             if this.GameState_ == GameState.Wait
                 this.Renderer_.DrawWaitTime();
             end
-            if this.WaitTime_ < 0
+            if this.WaitTime_ <= 0
                 this.GameState_ = GameState.Playing;
                 this.WaitTime_ = 3;
             end
+            if this.GameState_ ~= GameState.Wait
+                return;
+            end
+        end
+
+        function ClockTick(this)
             if this.GameState_ ~= GameState.Playing
                 return;
             end
@@ -237,11 +245,14 @@ classdef Game < handle
 
             this.Clock_ = timer('ExecutionMode', 'fixedRate', 'Period',...
                 1, 'TimerFcn', @(src, event) this.ClockTick());
+            this.ClockWait_ = timer('ExecutionMode', 'fixedRate', 'Period',...
+                1, 'TimerFcn', @(src, event) this.WaitTick());
 
 
             set(this.Renderer_.Fig_, 'DeleteFcn', @(~,~) delete(this));
             
             start(this.Clock_);
+            start(this.ClockWait_);
         end
 
         function GameOver(this)
@@ -258,6 +269,12 @@ classdef Game < handle
                 if isvalid(this.Clock_)
                     stop(this.Clock_);
                     delete(this.Clock_);
+                end
+            end
+            if ~isempty(this.ClockWait_)
+                if isvalid(this.ClockWait_)
+                    stop(this.ClockWait_);
+                    delete(this.ClockWait_);
                 end
             end
         end
