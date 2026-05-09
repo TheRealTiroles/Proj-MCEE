@@ -146,15 +146,7 @@ classdef Game < handle
             end
         end
 
-        function ClockTick(this)
-            if this.GameState_ ~= GameState.Playing
-                return;
-            end
-
-
-            nova_pos = this.PecaAtiva_.PosicaoPivo_ + [0, 0, -1];
-            
-
+        function colocou_no_chao = CheckPosou(this, nova_pos)
             colocou_no_chao = false;
             for n = 1:size(this.PecaAtiva_.Shape_, 1)
                 bloco = this.PecaAtiva_.Shape_(n, :) + nova_pos;
@@ -164,6 +156,51 @@ classdef Game < handle
                     break;
                 end
             end
+        end
+
+        function deleteFullLayers(this)
+
+            for k = this.Height_:-1:1
+
+                if all(this.Map_(:, :, k), 'all')
+
+                    for l = k:this.Height_-1
+                        this.Map_(:, :, l) = this.Map_(:, :, l+1);
+                    end
+                    this.Map_(:, :, this.Height_) = 0;
+                    
+
+                    stop(this.Clock_);
+                    this.Clock_.Period = max(0.1, this.Clock_.Period - 0.1);
+                    start(this.Clock_);
+                end
+            end
+
+        end
+
+        function checkIfGameLost(this)
+
+            for n = 1:size(this.PecaAtiva_.Shape_, 1)
+                b = this.PecaAtiva_.Shape_(n, :) + this.PecaAtiva_.PosicaoPivo_;
+                if this.Map_(b(1), b(2), min(b(3), this.Height_)) ~= 0
+                    this.GameOver();
+                    return;
+                end
+            end
+
+        end
+
+        function ClockTick(this)
+            if this.GameState_ ~= GameState.Playing
+                return;
+            end
+
+
+            nova_pos = this.PecaAtiva_.PosicaoPivo_ + [0, 0, -1];
+            
+
+            colocou_no_chao = this.CheckPosou(nova_pos);
+            
 
             if ~colocou_no_chao
 
@@ -181,35 +218,12 @@ classdef Game < handle
                     end
                 end
                 
-
-                for k = this.Height_:-1:1
-
-                    if all(this.Map_(:, :, k), 'all')
-
-                        for l = k:this.Height_-1
-                            this.Map_(:, :, l) = this.Map_(:, :, l+1);
-                        end
-                        this.Map_(:, :, this.Height_) = 0;
-                        
-
-                        stop(this.Clock_);
-                        this.Clock_.Period = max(0.1, this.Clock_.Period - 0.1);
-                        start(this.Clock_);
-                    end
-                end
-                
+                this.deleteFullLayers();
 
                 this.PecaAtiva_ = PecaAtiva([3, 3, this.Height_], this);
-                
 
-                pos_nova = this.PecaAtiva_.PosicaoPivo_;
-                for n = 1:size(this.PecaAtiva_.Shape_, 1)
-                    b = this.PecaAtiva_.Shape_(n, :) + pos_nova;
-                    if this.Map_(b(1), b(2), min(b(3), this.Height_)) ~= 0
-                        this.GameOver();
-                        return;
-                    end
-                end
+                this.checkIfGameLost();
+                
             end            
             this.Renderer_.DrawGame();
         end
