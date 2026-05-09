@@ -40,6 +40,10 @@ classdef Game < handle
 
             this.ConfigurarInterfaceMenu();
         end
+
+        function ResetGame(this)
+            this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
+        end
     
         function ConfigurarInterfaceJogo(this)
             if isgraphics(this.Renderer_.Fig_)

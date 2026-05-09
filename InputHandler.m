@@ -60,6 +60,7 @@ classdef InputHandler < handle
                         case PauseMenuOpt.Exit
                             this.Game_.GameState_ = GameState.Menu;
                             this.Game_.ConfigurarInterfaceMenu();
+                            this.Game_.ResetGame();
                     end
                 case 'uparrow'
                     if indice_atual == 1
@@ -111,6 +112,15 @@ classdef InputHandler < handle
             end
         end
 
+        function InputHandlerGameOver(this, event)
+
+            if ~isempty(event.Key)
+                this.Game_.GameState_ = GameState.Menu;
+                this.Game_.ConfigurarInterfaceMenu();
+            end
+
+        end
+
         function TecladoCallback(this, ~, event)
             tempo_decorrido = toc(this.LastInput_) * 1000;
             if tempo_decorrido < 100
@@ -126,6 +136,11 @@ classdef InputHandler < handle
 
             elseif this.Game_.GameState_ == GameState.Menu
                 this.InputHandlerMenu(event);
+
+
+            elseif this.Game_.GameState_ == GameState.GameOver
+                this.InputHandlerGameOver(event);
+
             end
             
         end
