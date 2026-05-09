@@ -51,7 +51,7 @@ classdef InputHandler < handle
                 case 'return'
                     switch this.Game_.PauseMenuOpt_
                         case PauseMenuOpt.Continue
-                            this.Game_.GameState_ = GameState.Playing;
+                            this.Game_.GameState_ = GameState.Wait;
                             this.Game_.ConfigurarInterfaceJogo();
                             set(this.Game_.Renderer_.Fig_, 'DeleteFcn', @(~,~) delete(this.Game_));
                             this.Game_.Renderer_.DrawGame();
