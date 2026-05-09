@@ -35,15 +35,44 @@ classdef InputHandler < handle
                     this.Game_.ChangeView(4);
                 case 'escape'
                     this.Game_.GameState_ = GameState.Paused;
+                    this.Game_.ConfigurarInterfacPauseMenu();
+                    return;
             end
             this.Game_.Renderer_.DrawPecaAtiva();
         end
 
         function InputHandlerPaused(this, event)
 
+            opcoes = enumeration('PauseMenuOpt');
+            indice_atual = find(opcoes == this.Game_.PauseMenuOpt_);
             switch event.Key
-                case 'escape'
-                    this.Game_.GameState_ = GameState.Wait;
+                case 'return'
+                    switch this.Game_.PauseMenuOpt_
+                        case PauseMenuOpt.Continue
+                            this.Game_.GameState_ = GameState.Playing;
+                            this.Game_.ConfigurarInterfaceJogo();
+                            set(this.Game_.Renderer_.Fig_, 'DeleteFcn', @(~,~) delete(this.Game_));
+                            this.Game_.Renderer_.DrawGame();
+                            
+                        case PauseMenuOpt.Save
+                        case PauseMenuOpt.Exit
+                            this.Game_.GameState_ = GameState.Menu;
+                            this.Game_.ConfigurarInterfaceMenu();
+                    end
+                case 'uparrow'
+                    if indice_atual == 1
+                        this.Game_.PauseMenuOpt_ = opcoes(find(opcoes == this.Game_.PauseMenuOpt_) + 2);
+                    else
+                        this.Game_.PauseMenuOpt_ = opcoes(find(opcoes == this.Game_.PauseMenuOpt_) - 1);
+                    end
+                    this.Game_.Renderer_.DrawPauseMenu();
+                case 'downarrow'
+                    if indice_atual == 3
+                        this.Game_.PauseMenuOpt_ = opcoes(find(opcoes == this.Game_.PauseMenuOpt_) - 2);
+                    else
+                        this.Game_.PauseMenuOpt_ = opcoes(find(opcoes == this.Game_.PauseMenuOpt_) + 1);
+                    end
+                    this.Game_.Renderer_.DrawPauseMenu();
             end
 
         end
@@ -57,6 +86,7 @@ classdef InputHandler < handle
                         case MenuOpt.Start
                             this.Game_.GameState_ = GameState.Playing;
                             this.Game_.ConfigurarInterfaceJogo();
+                            this.Game_.StartGame();
                         case MenuOpt.Statistics
                         case MenuOpt.Settings
                         case MenuOpt.Quit

@@ -84,14 +84,9 @@ classdef Renderer < handle
             this.DrawPecaAtiva();
         end
 
-        function DrawPauseMenu(this)
-            
-
-        end
-
         function DrawMenu(this)
-            clf;
-            this.Eixos_ = axes('Visible', 'off');
+            cla(this.Eixos_);
+            set(this.Eixos_, 'XLim', [0 1], 'YLim', [0 1], 'ZLim', [0 1]);
             opcoes = enumeration('MenuOpt');
             pos = [0.8, 0.6, 0.4, 0.2];
             for i = 1:4
@@ -100,8 +95,27 @@ classdef Renderer < handle
                 else
                     texto = char(opcoes(i));
                 end
-                text(0.45, pos(i), texto, 'FontSize', 30);
+                text(0.45, pos(i), texto, 'FontSize', 30, 'Parent', this.Eixos_, ...
+                    'Units', 'normalized', 'HorizontalAlignment', 'center');
             end
+            drawnow;
+        end
+
+        function DrawPauseMenu(this)
+            cla(this.Eixos_);
+            set(this.Eixos_, 'XLim', [0 1], 'YLim', [0 1], 'ZLim', [0 1]);
+            opcoes = enumeration('PauseMenuOpt');
+            pos = [0.8, 0.6, 0.4, 0.2];
+            for i = 1:3
+                if opcoes(i) == this.Game_.PauseMenuOpt_
+                    texto = sprintf('> %s <', char(opcoes(i)));
+                else
+                    texto = char(opcoes(i));
+                end
+                text(0.45, pos(i), texto, 'FontSize', 30, 'Parent', this.Eixos_, ...
+                    'Units', 'normalized', 'HorizontalAlignment', 'center');
+            end
+            drawnow;
         end
 
 

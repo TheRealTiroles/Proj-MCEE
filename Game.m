@@ -17,6 +17,7 @@ classdef Game < handle
 
         WaitTime_;
         MenuOpt_;
+        PauseMenuOpt_;
     end
 
     methods
@@ -24,23 +25,35 @@ classdef Game < handle
             this.Height_ = height;
             this.Width_ = width;  
             this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
-            this.GameState_ = GameState.Menu;
-            this.WaitTime_ = 3;
-            this.MenuOpt_ = MenuOpt.Start;
+            
             this.Clock_ = [];
+            this.WaitTime_ = 3;
+
+            this.MenuOpt_ = MenuOpt.Start;
+            this.PauseMenuOpt_ = PauseMenuOpt.Continue;
+            this.GameState_ = GameState.Menu;
             
             this.InputHandler_ = InputHandler(this);
-
             this.Renderer_ = Renderer(this);
 
             this.ConfigurarInterfaceMenu();
-            
         end
     
         function ConfigurarInterfaceJogo(this)
-            clf(this.Renderer_.Fig_);
-            set(this.Renderer_.Fig_, 'Name', 'Tetris');
+            if isgraphics(this.Renderer_.Fig_)
+                clf(this.Renderer_.Fig_);
+                set(this.Renderer_.Fig_, 'Name', 'Tetris', ...
+                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
+            else
+                this.Renderer_.Fig_ = figure('Name', 'Tetris', ...
+                                    'ToolBar', 'none', ...
+                                    'Menu', 'none', ...
+                                    'WindowState', 'maximized', ...
+                                    'NumberTitle', 'off', ...
+                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
+            end
             this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_);
+            set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
             axis(this.Renderer_.Eixos_, 'equal');
             grid(this.Renderer_.Eixos_, 'on');
             view(this.Renderer_.Eixos_, 3);
@@ -49,19 +62,44 @@ classdef Game < handle
             xlim(this.Renderer_.Eixos_, [0, this.Width_]); xlabel('x'); xticks(0:this.Width_);
             ylim(this.Renderer_.Eixos_, [0, this.Width_]); ylabel('y'); yticks(0:this.Width_);
             zlim(this.Renderer_.Eixos_, [0, this.Height_]); zlabel('z'); zticks(0:this.Height_);
-
-            this.StartGame();
         end
 
         function ConfigurarInterfaceMenu(this)
-            this.Renderer_.Fig_ = figure('Name', 'Menu Tetris', ...
-                                'ToolBar', 'none', ...
-                                'Menu', 'none', ...
-                                'WindowState', 'maximized', ...
-                                'NumberTitle', 'off', ...
-                                'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
-            this.Renderer_.Eixos_ = axes('Visible', 'off');
+            if isgraphics(this.Renderer_.Fig_)
+                clf(this.Renderer_.Fig_);
+                set(this.Renderer_.Fig_, 'Name', 'Menu Tetris', ...
+                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
+            else
+                this.Renderer_.Fig_ = figure('Name', 'Menu Tetris', ...
+                                    'ToolBar', 'none', ...
+                                    'Menu', 'none', ...
+                                    'WindowState', 'maximized', ...
+                                    'NumberTitle', 'off', ...
+                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
+            end
+            this.MenuOpt_ = MenuOpt.Start;
+            this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Visible', 'off');
+            set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
             this.Renderer_.DrawMenu();
+        end
+
+        function ConfigurarInterfacPauseMenu(this)
+            if isgraphics(this.Renderer_.Fig_)
+                clf(this.Renderer_.Fig_);
+                set(this.Renderer_.Fig_, 'Name', 'Paused', ...
+                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
+            else
+                this.Renderer_.Fig_ = figure('Name', 'Paused', ...
+                                    'ToolBar', 'none', ...
+                                    'Menu', 'none', ...
+                                    'WindowState', 'maximized', ...
+                                    'NumberTitle', 'off', ...
+                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
+            end
+            this.PauseMenuOpt_ = PauseMenuOpt.Continue;
+            this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Visible', 'off');
+            set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
+            this.Renderer_.DrawPauseMenu();
         end
 
         function ChangeView(this, x)

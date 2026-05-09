@@ -75,7 +75,6 @@ classdef PecaAtiva < handle
             map = this.Game_.Map_;
             shape = this.Shape_;
             pos_pivo = this.PosicaoPivo_;
-            h_max = this.Game_.Height_;
             
             h_poss = 0;
             for n = 1:size(shape, 1)
