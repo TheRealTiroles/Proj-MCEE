@@ -144,5 +144,138 @@ classdef InputHandler < handle
             end
             
         end
+
+        function MouseMotionCallback(this, ~, ~)
+            if this.Game_.GameState_ == GameState.Menu
+                this.UpdateMenuMouseHover();
+            
+            elseif this.Game_.GameState_ == GameState.Paused
+                this.UpdatePauseMenuMouseHover();
+            end
+        end
+
+        function UpdateMenuMouseHover(this)
+            pt = get(this.Game_.Renderer_.Eixos_, 'CurrentPoint');
+            mouse_x = pt(1, 1);
+            mouse_y = pt(1, 2);
+            
+            opcoes = enumeration('MenuOpt');
+            pos_y = [0.8, 0.6, 0.4, 0.2];
+            center_x = 0.45;
+            tolerance_y = 0.05;
+            tolerance_x = 0.15;
+            
+            for i = 1:4
+                if abs(mouse_y - pos_y(i)) < tolerance_y && abs(mouse_x - center_x) < tolerance_x
+                    if this.Game_.MenuOpt_ ~= opcoes(i)
+                        this.Game_.MenuOpt_ = opcoes(i);
+                        this.Game_.Renderer_.DrawMenu();
+                    end
+                    return;
+                end
+            end
+        end
+
+        function UpdatePauseMenuMouseHover(this)
+            pt = get(this.Game_.Renderer_.Eixos_, 'CurrentPoint');
+            mouse_x = pt(1, 1);
+            mouse_y = pt(1, 2);
+            
+            opcoes = enumeration('PauseMenuOpt');
+            pos_y = [0.8, 0.6, 0.4, 0.2];
+            center_x = 0.45;
+            tolerance_y = 0.05;
+            tolerance_x = 0.15;
+            
+            for i = 1:3
+                if abs(mouse_y - pos_y(i)) < tolerance_y && abs(mouse_x - center_x) < tolerance_x
+                    if this.Game_.PauseMenuOpt_ ~= opcoes(i)
+                        this.Game_.PauseMenuOpt_ = opcoes(i);
+                        this.Game_.Renderer_.DrawPauseMenu();
+                    end
+                    return;
+                end
+            end
+        end
+
+        function MouseCallBack(this, ~, ~)
+            if this.Game_.GameState_ == GameState.Menu
+                this.InputHandlerMenuMouse();
+            
+            elseif this.Game_.GameState_ == GameState.Paused
+                this.InputHandlerPausedMouse();
+                
+            elseif this.Game_.GameState_ == GameState.GameOver
+                this.InputHandlerGameOverMouse();
+            end
+        end
+
+        function InputHandlerMenuMouse(this)
+            pt = get(this.Game_.Renderer_.Eixos_, 'CurrentPoint');
+            mouse_x = pt(1, 1);
+            mouse_y = pt(1, 2);
+            
+            opcoes = enumeration('MenuOpt');
+            pos_y = [0.8, 0.6, 0.4, 0.2];
+            center_x = 0.45;
+            
+            tolerance_y = 0.05;
+            tolerance_x = 0.15;
+            
+            for i = 1:4
+                if abs(mouse_y - pos_y(i)) < tolerance_y && abs(mouse_x - center_x) < tolerance_x
+                    switch opcoes(i)
+                        case MenuOpt.Start
+                            this.Game_.GameState_ = GameState.Playing;
+                            this.Game_.ConfigurarInterfaceJogo();
+                            this.Game_.StartGame();
+                        case MenuOpt.Statistics
+                        case MenuOpt.Settings
+                        case MenuOpt.Quit
+                            delete(this.Game_);
+                    end
+                    return;
+                end
+            end
+        end
+
+        function InputHandlerPausedMouse(this)
+            pt = get(this.Game_.Renderer_.Eixos_, 'CurrentPoint');
+            mouse_x = pt(1, 1);
+            mouse_y = pt(1, 2);
+            
+            opcoes = enumeration('PauseMenuOpt');
+            pos_y = [0.8, 0.6, 0.4, 0.2];
+            center_x = 0.45;
+            
+            tolerance_y = 0.05;
+            tolerance_x = 0.15;
+            
+            for i = 1:3
+                if abs(mouse_y - pos_y(i)) < tolerance_y && abs(mouse_x - center_x) < tolerance_x
+                    switch opcoes(i)
+                        case PauseMenuOpt.Continue
+                            this.Game_.GameState_ = GameState.Wait;
+                            this.Game_.ConfigurarInterfaceJogo();
+                            set(this.Game_.Renderer_.Fig_, 'DeleteFcn', @(~,~) delete(this.Game_));
+                            this.Game_.Renderer_.DrawGame();
+                            
+                        case PauseMenuOpt.Save
+
+                        case PauseMenuOpt.Exit
+                            this.Game_.GameState_ = GameState.Menu;
+                            this.Game_.ConfigurarInterfaceMenu();
+                            this.Game_.ResetGame();
+                    end
+                    return;
+                end
+            end
+        end
+
+        function InputHandlerGameOverMouse(this)
+
+            this.Game_.GameState_ = GameState.Menu;
+            this.Game_.ConfigurarInterfaceMenu();
+        end
     end
 end
