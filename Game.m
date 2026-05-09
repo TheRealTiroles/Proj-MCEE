@@ -147,6 +147,7 @@ classdef Game < handle
         end
 
         function colocou_no_chao = CheckPosou(this, nova_pos)
+            colocou_no_chao = false;
             for n = 1:size(this.PecaAtiva_.Shape_, 1)
                 bloco = this.PecaAtiva_.Shape_(n, :) + nova_pos;
 
