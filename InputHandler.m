@@ -2,6 +2,7 @@ classdef InputHandler < handle
     properties
 
         Game_;
+        LastInput_;
 
     end
 
@@ -9,6 +10,7 @@ classdef InputHandler < handle
         function this = InputHandler(game)
 
             this.Game_ = game;
+            this.LastInput_ = tic;
 
         end
 
@@ -110,6 +112,12 @@ classdef InputHandler < handle
         end
 
         function TecladoCallback(this, ~, event)
+            tempo_decorrido = toc(this.LastInput_) * 1000;
+            if tempo_decorrido < 100
+                return;
+            end
+            this.LastInput_ = tic;
+            
             if this.Game_.GameState_ == GameState.Playing
                 this.InputHandlerGame(event);
             
