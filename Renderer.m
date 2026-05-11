@@ -94,7 +94,6 @@ classdef Renderer < handle
             f_unit = [1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 1 2 3 4; 5 6 7 8];
             cores = [0 1 1; 0 1 0; 1 1 0; 0 0 1; 1 0 1; 1 0.5 0; 0.5 0 0.5; 1 0 0];
             
-            % Posições Z: próxima peça em cima (10), depois (6), depois em baixo (2)
             posicoes_base = [10, 6, 2];
             
             for i = 2:4
@@ -103,7 +102,6 @@ classdef Renderer < handle
                     tipo = this.Game_.PecaAtiva_(i).Tipo_;
                     z_offset = posicoes_base(i-1);
                     
-                    % Construir os vértices da peça
                     forma_v = v_unit;
                     forma_f = f_unit;
                     if size(forma, 1) > 1
@@ -113,7 +111,6 @@ classdef Renderer < handle
                         end
                     end
                     
-                    % Desenhar a peça com offset de Z
                     pos_desenho = [1, 1, z_offset];
                     patch(this.EixosAux_, 'Vertices', forma_v + pos_desenho - 1, 'Faces', forma_f, ...
                         'FaceColor', cores(tipo, :), 'FaceAlpha', 0.75);
