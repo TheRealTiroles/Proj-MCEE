@@ -19,6 +19,10 @@ classdef Game < handle
         WaitTime_;
         MenuOpt_;
         PauseMenuOpt_;
+
+        SettingsOpt_;
+        SettingsWidth_;
+        SettingsHeight_;
     end
 
     methods
@@ -35,6 +39,9 @@ classdef Game < handle
 
             this.MenuOpt_ = MenuOpt.Start;
             this.PauseMenuOpt_ = PauseMenuOpt.Continue;
+            this.SettingsOpt_ = SettingsOpt.Width;
+            this.SettingsWidth_ = width;
+            this.SettingsHeight_ = height;
             this.GameState_ = GameState.Menu;
             
             this.InputHandler_ = InputHandler(this);
@@ -133,6 +140,31 @@ classdef Game < handle
             this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Visible', 'off');
             set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
             this.Renderer_.DrawPauseMenu();
+        end
+
+        function ConfigurarInterfaceSettings(this)
+            if isgraphics(this.Renderer_.Fig_)
+                clf(this.Renderer_.Fig_);
+                set(this.Renderer_.Fig_, 'Name', 'Settings', ...
+                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event), ...
+                                    'WindowButtonDownFcn', @(src, event) this.InputHandler_.MouseCallBack(src, event), ...
+                                    'WindowButtonMotionFcn', @(src, event) this.InputHandler_.MouseMotionCallback(src, event), ...
+                                    'WindowScrollWheelFcn', @(src, event) this.InputHandler_.MouseScrollCallBack(scr, event));
+            else
+                this.Renderer_.Fig_ = figure('Name', 'Settings', ...
+                                    'ToolBar', 'none', ...
+                                    'Menu', 'none', ...
+                                    'WindowState', 'maximized', ...
+                                    'NumberTitle', 'off', ...
+                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event), ...
+                                    'WindowButtonDownFcn', @(src, event) this.InputHandler_.MouseCallBack(src, event), ...
+                                    'WindowButtonMotionFcn', @(src, event) this.InputHandler_.MouseMotionCallback(src, event), ...
+                                    'WindowScrollWheelFcn', @(src, event) this.InputHandler_.MouseScrollCallBack(scr, event));
+            end
+            this.SettingsOpt_ = SettingsOpt.Width;
+            this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Visible', 'off');
+            set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
+            this.Renderer_.DrawSettings();
         end
 
         function ChangeView(this, x)

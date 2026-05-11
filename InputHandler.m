@@ -88,12 +88,17 @@ classdef InputHandler < handle
                 case 'return'
                     switch this.Game_.MenuOpt_
                         case MenuOpt.Start
+                            this.Game_.Height_ = this.Game_.SettingsHeight_;
+                            this.Game_.Width_ = this.Game_.SettingsWidth_;
+                            this.Game_.Map_ = zeros(this.Game_.Width_, this.Game_.Width_, this.Game_.Height_+2);
                             this.Game_.GameState_ = GameState.Playing;
                             this.Game_.ConfigurarInterfaceJogo();
                             this.Game_.ConfigurarInterfaceProximasPecas();
                             this.Game_.StartGame();
                         case MenuOpt.Statistics
                         case MenuOpt.Settings
+                            this.Game_.GameState_ = GameState.Settings;
+                            this.Game_.ConfigurarInterfaceSettings();
                         case MenuOpt.Quit
                             delete(this.Game_);
                     end
@@ -123,6 +128,34 @@ classdef InputHandler < handle
 
         end
 
+        function InputHandlerSettings(this, event)
+            switch event.Key
+                case 'return'
+                    this.Game_.GameState_ = GameState.Menu;
+                    this.Game_.ConfigurarInterfaceMenu();
+                case 'uparrow'
+                    this.Game_.SettingsOpt_ = SettingsOpt.Width;
+                    this.Game_.Renderer_.DrawSettings();
+                case 'downarrow'
+                    this.Game_.SettingsOpt_ = SettingsOpt.Height;
+                    this.Game_.Renderer_.DrawSettings();
+                case 'leftarrow'
+                    if this.Game_.SettingsOpt_ == SettingsOpt.Width
+                        this.Game_.SettingsWidth_ = max(5, this.Game_.SettingsWidth_ - 1);
+                    else
+                        this.Game_.SettingsHeight_ = max(10, this.Game_.SettingsHeight_ - 1);
+                    end
+                    this.Game_.Renderer_.DrawSettings();
+                case 'rightarrow'
+                    if this.Game_.SettingsOpt_ == SettingsOpt.Width
+                        this.Game_.SettingsWidth_ = min(10, this.Game_.SettingsWidth_ + 1);
+                    else
+                        this.Game_.SettingsHeight_ = min(20, this.Game_.SettingsHeight_ + 1);
+                    end
+                    this.Game_.Renderer_.DrawSettings();
+            end
+        end
+
         function TecladoCallback(this, ~, event)
             tempo_decorrido = toc(this.LastInput_) * 1000;
             if tempo_decorrido < 100
@@ -139,6 +172,8 @@ classdef InputHandler < handle
             elseif this.Game_.GameState_ == GameState.Menu
                 this.InputHandlerMenu(event);
 
+            elseif this.Game_.GameState_ == GameState.Settings
+                this.InputHandlerSettings(event);
 
             elseif this.Game_.GameState_ == GameState.GameOver
                 this.InputHandlerGameOver(event);
@@ -280,6 +315,12 @@ classdef InputHandler < handle
 
             this.Game_.GameState_ = GameState.Menu;
             this.Game_.ConfigurarInterfaceMenu();
+        end
+
+
+        function MouseScrollCallBack(this, ~, event)
+
+
         end
     end
 end

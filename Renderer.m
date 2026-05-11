@@ -153,6 +153,59 @@ classdef Renderer < handle
             drawnow;
         end
 
+        function DrawSettings(this)
+            cla(this.Eixos_);
+            set(this.Eixos_, 'XLim', [0 1], 'YLim', [0 1], 'ZLim', [0 1]);
+            
+            text(0.5, 0.90, 'SETTINGS', 'FontSize', 50, 'Parent', this.Eixos_, ...
+                'Units', 'normalized', 'HorizontalAlignment', 'center', 'FontWeight', 'bold');
+            
+            if this.Game_.SettingsOpt_ == SettingsOpt.Width
+                texto_width = sprintf('> Width: %d <', this.Game_.SettingsWidth_);
+                color_width = [1 0.5 0];
+            else
+                texto_width = sprintf('Width: %d', this.Game_.SettingsWidth_);
+                color_width = [0 0 0];
+            end
+            text(0.5, 0.70, texto_width, 'FontSize', 32, 'Parent', this.Eixos_, ...
+                'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', color_width, 'FontWeight', 'bold');
+
+            if this.Game_.SettingsWidth_ == 10
+                aviso_width = '(Max: 10)';
+            elseif this.Game_.SettingsWidth_ == 5
+                aviso_width = '(Min: 5)';
+            else
+                aviso_width = '';
+            end
+            text(0.5, 0.62, aviso_width, 'FontSize', 14, 'Parent', this.Eixos_, ...
+                'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', [0.6 0.6 0.6]);
+            
+            if this.Game_.SettingsOpt_ == SettingsOpt.Height
+                texto_height = sprintf('> Height: %d <', this.Game_.SettingsHeight_);
+                color_height = [1 0.5 0];
+            else
+                texto_height = sprintf('Height: %d', this.Game_.SettingsHeight_);
+                color_height = [0 0 0];
+            end
+            text(0.5, 0.50, texto_height, 'FontSize', 32, 'Parent', this.Eixos_, ...
+                'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', color_height, 'FontWeight', 'bold');
+
+            if this.Game_.SettingsHeight_ == 20
+                aviso_height = '(Max: 20)';
+            elseif this.Game_.SettingsHeight_ == 10
+                aviso_height = '(Min: 10)';
+            else
+                aviso_height = '';
+            end
+            text(0.5, 0.42, aviso_height, 'FontSize', 14, 'Parent', this.Eixos_, ...
+                'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', [0.6 0.6 0.6]);
+            
+            text(0.5, 0.20, 'Use ↑↓ to navigate | ← → to adjust | ENTER to confirm', 'FontSize', 14, ...
+                'Parent', this.Eixos_, 'Units', 'normalized', 'HorizontalAlignment', 'center', ...
+                'Color', [0.5 0.5 0.5]);
+            
+            drawnow;
+        end
 
         function DrawWaitTime(this)
             if isempty(this.Txt_) || ~all(isgraphics(this.Txt_))
