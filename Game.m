@@ -31,6 +31,8 @@ classdef Game < handle
             this.WaitTime_ = 3;
             this.ClockWait_ = [];
 
+            this.PecaAtiva_ = PecaAtiva.empty(1, 0);
+
             this.MenuOpt_ = MenuOpt.Start;
             this.PauseMenuOpt_ = PauseMenuOpt.Continue;
             this.GameState_ = GameState.Menu;
@@ -58,7 +60,7 @@ classdef Game < handle
                                     'NumberTitle', 'off', ...
                                     'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
             end
-            this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_);
+            this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Position', [0.05 0.05 0.75 0.90]);
             set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
             axis(this.Renderer_.Eixos_, 'equal');
             grid(this.Renderer_.Eixos_, 'on');
@@ -68,6 +70,23 @@ classdef Game < handle
             xlim(this.Renderer_.Eixos_, [0, this.Width_]); xlabel('x'); xticks(0:this.Width_);
             ylim(this.Renderer_.Eixos_, [0, this.Width_]); ylabel('y'); yticks(0:this.Width_);
             zlim(this.Renderer_.Eixos_, [0, this.Height_]); zlabel('z'); zticks(0:this.Height_);
+            
+            this.ConfigurarInterfaceProximasPecas();
+        end
+
+        function ConfigurarInterfaceProximasPecas(this)
+            this.Renderer_.EixosAux_ = axes('Parent', this.Renderer_.Fig_, 'Position', [0.60 0.05 0.25 0.90]);
+            set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.EixosAux_);
+            axis(this.Renderer_.EixosAux_, 'off');
+            grid(this.Renderer_.EixosAux_, 'off');
+            daspect(this.Renderer_.EixosAux_, [1 1 1]);
+            view(this.Renderer_.EixosAux_, 3);
+            
+            xlim(this.Renderer_.EixosAux_, [0, 4]);
+            ylim(this.Renderer_.EixosAux_, [0, 4]);
+            zlim(this.Renderer_.EixosAux_, [0, 12]);
+            set(this.Renderer_.EixosAux_, 'Color', 'none');
+            title(this.Renderer_.EixosAux_, 'Próximas Peças', 'FontSize', 12);
         end
 
         function ConfigurarInterfaceMenu(this)
@@ -121,10 +140,10 @@ classdef Game < handle
         end
 
         function TryMoveBlock(this, direction, c)
-            nova_pos = this.PecaAtiva_.PosicaoPivo_ + direction;
-            colisao = this.check_colision(this.PecaAtiva_, nova_pos, c);
+            nova_pos = this.PecaAtiva_(1).PosicaoPivo_ + direction;
+            colisao = this.check_colision(this.PecaAtiva_(1), nova_pos, c);
             if ~colisao
-                this.PecaAtiva_.MoverPara(nova_pos);
+                this.PecaAtiva_(1).MoverPara(nova_pos);
             end
             this.Renderer_.DrawGame();
         end
@@ -156,8 +175,8 @@ classdef Game < handle
 
         function colocou_no_chao = CheckPosou(this, nova_pos)
             colocou_no_chao = false;
-            for n = 1:size(this.PecaAtiva_.Shape_, 1)
-                bloco = this.PecaAtiva_.Shape_(n, :) + nova_pos;
+            for n = 1:size(this.PecaAtiva_(1).Shape_, 1)
+                bloco = this.PecaAtiva_(1).Shape_(n, :) + nova_pos;
 
                 if bloco(3) < 1 || this.Map_(bloco(1), bloco(2), min(bloco(3), this.Height_)) ~= 0
                     colocou_no_chao = true;
@@ -188,8 +207,8 @@ classdef Game < handle
 
         function checkIfGameLost(this)
 
-            for n = 1:size(this.PecaAtiva_.Shape_, 1)
-                b = this.PecaAtiva_.Shape_(n, :) + this.PecaAtiva_.PosicaoPivo_;
+            for n = 1:size(this.PecaAtiva_(1).Shape_, 1)
+                b = this.PecaAtiva_(1).Shape_(n, :) + this.PecaAtiva_(1).PosicaoPivo_;
                 if this.Map_(b(1), b(2), min(b(3), this.Height_)) ~= 0
                     this.GameOver();
                     return;
@@ -204,7 +223,7 @@ classdef Game < handle
             end
 
 
-            nova_pos = this.PecaAtiva_.PosicaoPivo_ + [0, 0, -1];
+            nova_pos = this.PecaAtiva_(1).PosicaoPivo_ + [0, 0, -1];
             
 
             colocou_no_chao = this.CheckPosou(nova_pos);
@@ -212,12 +231,12 @@ classdef Game < handle
 
             if ~colocou_no_chao
 
-                this.PecaAtiva_.MoverPara(nova_pos);
+                this.PecaAtiva_(1).MoverPara(nova_pos);
             else
 
-                forma = this.PecaAtiva_.Shape_;
-                pos = this.PecaAtiva_.PosicaoPivo_;
-                tipo = this.PecaAtiva_.Tipo_;
+                forma = this.PecaAtiva_(1).Shape_;
+                pos = this.PecaAtiva_(1).PosicaoPivo_;
+                tipo = this.PecaAtiva_(1).Tipo_;
                 
                 for n = 1:size(forma, 1)
                     bloco = forma(n, :) + pos;
@@ -228,7 +247,8 @@ classdef Game < handle
                 
                 this.deleteFullLayers();
 
-                this.PecaAtiva_ = PecaAtiva([3, 3, this.Height_], this);
+                this.PecaAtiva_(1:3) = this.PecaAtiva_(2:4);
+                this.PecaAtiva_(4) = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
 
                 this.checkIfGameLost();
                 
@@ -243,9 +263,9 @@ classdef Game < handle
             
             colocou_no_chao = false;
             while ~colocou_no_chao
-                nova_pos = this.PecaAtiva_.PosicaoPivo_ + [0, 0, -1];
-                for n = 1:size(this.PecaAtiva_.Shape_, 1)
-                    bloco = this.PecaAtiva_.Shape_(n, :) + nova_pos;
+                nova_pos = this.PecaAtiva_(1).PosicaoPivo_ + [0, 0, -1];
+                for n = 1:size(this.PecaAtiva_(1).Shape_, 1)
+                    bloco = this.PecaAtiva_(1).Shape_(n, :) + nova_pos;
                     if bloco(3) < 1 || this.Map_(bloco(1), bloco(2), min(bloco(3), this.Height_)) ~= 0
                         colocou_no_chao = true;
                         break;
@@ -253,7 +273,7 @@ classdef Game < handle
                 end
                 
                 if ~colocou_no_chao
-                    this.PecaAtiva_.MoverPara(nova_pos);
+                    this.PecaAtiva_(1).MoverPara(nova_pos);
                 end
             end
             
@@ -261,7 +281,10 @@ classdef Game < handle
         end
         
         function StartGame(this)
-            this.PecaAtiva_ = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
+            this.PecaAtiva_ = PecaAtiva.empty(1, 0);
+            for i = 1:4
+                this.PecaAtiva_(i) = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
+            end
 
             t_antigos = timerfind;
             if ~isempty(t_antigos)

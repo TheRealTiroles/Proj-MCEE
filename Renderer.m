@@ -3,6 +3,7 @@ classdef Renderer < handle
         Game_;
         Fig_;
         Eixos_;
+        EixosAux_;
         Txt_;
     end
 
@@ -12,6 +13,7 @@ classdef Renderer < handle
 
             this.Fig_ = [];
             this.Eixos_ = [];
+            this.EixosAux_ = [];
             this.Txt_ = [];
         end
 
@@ -51,9 +53,9 @@ classdef Renderer < handle
             f_unit = [1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 1 2 3 4; 5 6 7 8];
             cores = [0 1 1; 0 1 0; 1 1 0; 0 0 1; 1 0 1; 1 0.5 0; 0.5 0 0.5; 1 0 0];
             
-            forma = this.Game_.PecaAtiva_.Shape_;
-            pos = this.Game_.PecaAtiva_.PosicaoPivo_;
-            tipo = this.Game_.PecaAtiva_.Tipo_;
+            forma = this.Game_.PecaAtiva_(1).Shape_;
+            pos = this.Game_.PecaAtiva_(1).PosicaoPivo_;
+            tipo = this.Game_.PecaAtiva_(1).Tipo_;
             
 
             forma_v = v_unit;
@@ -66,7 +68,7 @@ classdef Renderer < handle
             end
 
 
-            pos_futura = this.Game_.PecaAtiva_.GetPosFutura();
+            pos_futura = this.Game_.PecaAtiva_(1).GetPosFutura();
             patch(this.Eixos_, 'Vertices', forma_v + pos_futura - 1, 'Faces', forma_f, ...
                 'FaceColor', [0.5, 0.5, 0.5], 'FaceAlpha', 0.50);
                 
@@ -82,6 +84,42 @@ classdef Renderer < handle
     
             this.DrawBlocosPosicionados();
             this.DrawPecaAtiva();
+            
+            cla(this.EixosAux_);
+            this.DrawProximasPecas();
+        end
+
+        function DrawProximasPecas(this)
+            v_unit = [0 0 0; 1 0 0; 1 1 0; 0 1 0; 0 0 1; 1 0 1; 1 1 1; 0 1 1];
+            f_unit = [1 2 6 5; 2 3 7 6; 3 4 8 7; 4 1 5 8; 1 2 3 4; 5 6 7 8];
+            cores = [0 1 1; 0 1 0; 1 1 0; 0 0 1; 1 0 1; 1 0.5 0; 0.5 0 0.5; 1 0 0];
+            
+            % Posições Z: próxima peça em cima (10), depois (6), depois em baixo (2)
+            posicoes_base = [10, 6, 2];
+            
+            for i = 2:4
+                if i <= numel(this.Game_.PecaAtiva_)
+                    forma = this.Game_.PecaAtiva_(i).Shape_;
+                    tipo = this.Game_.PecaAtiva_(i).Tipo_;
+                    z_offset = posicoes_base(i-1);
+                    
+                    % Construir os vértices da peça
+                    forma_v = v_unit;
+                    forma_f = f_unit;
+                    if size(forma, 1) > 1
+                        for f = 2:size(forma, 1)
+                            forma_v = [forma_v; v_unit + forma(f, :)];
+                            forma_f = [forma_f; f_unit + (f-1)*8];
+                        end
+                    end
+                    
+                    % Desenhar a peça com offset de Z
+                    pos_desenho = [1, 1, z_offset];
+                    patch(this.EixosAux_, 'Vertices', forma_v + pos_desenho - 1, 'Faces', forma_f, ...
+                        'FaceColor', cores(tipo, :), 'FaceAlpha', 0.75);
+                end
+            end
+            drawnow;
         end
 
         function DrawMenu(this)
