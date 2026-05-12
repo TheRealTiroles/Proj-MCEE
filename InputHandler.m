@@ -8,22 +8,32 @@ classdef InputHandler < handle
 
     methods
         function this = InputHandler(game)
-
             this.Game_ = game;
             this.LastInput_ = tic;
-
         end
 
         function InputHandlerGame(this, event)
             switch event.Key
                 case 'uparrow'
-                   this.Game_.TryMoveBlock([0 1 0], 2);
+                   [direction, axis] = this.Game_.Renderer_.GetMovementDirection('up');
+                   this.Game_.TryMoveBlock(direction, axis);
                 case 'downarrow'
-                    this.Game_.TryMoveBlock([0 -1 0], 2);
+                    [direction, axis] = this.Game_.Renderer_.GetMovementDirection('down');
+                    this.Game_.TryMoveBlock(direction, axis);
                 case 'rightarrow'
-                    this.Game_.TryMoveBlock([1 0 0], 1);
+                    [direction, axis] = this.Game_.Renderer_.GetMovementDirection('right');
+                    this.Game_.TryMoveBlock(direction, axis);
                 case 'leftarrow'
-                    this.Game_.TryMoveBlock([-1 0 0], 1);
+                    [direction, axis] = this.Game_.Renderer_.GetMovementDirection('left');
+                    this.Game_.TryMoveBlock(direction, axis);
+                case 'a'
+                    this.Game_.Renderer_.MoveAzimuth(-1);
+                case 's'
+                    this.Game_.Renderer_.MoveElevation(-1);
+                case 'd'
+                    this.Game_.Renderer_.MoveAzimuth(1);
+                case 'w'
+                    this.Game_.Renderer_.MoveElevation(1);
                 case 'space'
                     this.Game_.FreeFall();
                     return;

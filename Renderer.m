@@ -5,6 +5,9 @@ classdef Renderer < handle
         Eixos_;
         EixosAux_;
         Txt_;
+
+        ViewAzimuth_;
+        ViewElevation_;
     end
 
     methods 
@@ -15,6 +18,9 @@ classdef Renderer < handle
             this.Eixos_ = [];
             this.EixosAux_ = [];
             this.Txt_ = [];
+
+            this.ViewAzimuth_ = -37.5;
+            this.ViewElevation_ = 30;
         end
 
         function ChangeView(this, vista_id)
@@ -23,6 +29,59 @@ classdef Renderer < handle
                 case 2, view(this.Eixos_, [0 this.Game_.Width_ 0]);
                 case 3, view(this.Eixos_, [this.Game_.Width_ 0 0]);
                 case 4, view(this.Eixos_, 3);
+            end
+        end
+
+        function MoveAzimuth(this, delta)
+            this.ViewAzimuth_ = this.ViewAzimuth_ + delta * 5;
+            view(this.Eixos_, [this.ViewAzimuth_, this.ViewElevation_]);
+            
+            if ~isempty(this.EixosAux_) && isgraphics(this.EixosAux_)
+                view(this.EixosAux_, [this.ViewAzimuth_, 30]);
+            end
+        end
+
+        function MoveElevation(this, delta)
+            this.ViewElevation_ = max(-90, min(90, this.ViewElevation_ + delta * 5));
+            view(this.Eixos_, [this.ViewAzimuth_, this.ViewElevation_]);
+        end
+
+        function [direction, axis] = GetMovementDirection(this, moveType)
+            
+            az = mod(this.ViewAzimuth_, 360);
+            
+            quadrant = round(az / 90) * 90;
+            quadrant = mod(quadrant, 360);
+            
+            switch quadrant
+                case 0
+                    switch moveType
+                        case 'up',    direction = [0, 1, 0]; axis = 2;
+                        case 'down',  direction = [0, -1, 0]; axis = 2;
+                        case 'left',  direction = [-1, 0, 0]; axis = 1;
+                        case 'right', direction = [1, 0, 0]; axis = 1;
+                    end
+                case 90
+                    switch moveType
+                        case 'up',    direction = [-1, 0, 0]; axis = 1;
+                        case 'down',  direction = [1, 0, 0]; axis = 1;
+                        case 'left',  direction = [0, -1, 0]; axis = 2;
+                        case 'right', direction = [0, 1, 0]; axis = 2;
+                    end
+                case 180
+                    switch moveType
+                        case 'up',    direction = [0, -1, 0]; axis = 2;
+                        case 'down',  direction = [0, 1, 0]; axis = 2;
+                        case 'left',  direction = [1, 0, 0]; axis = 1;
+                        case 'right', direction = [-1, 0, 0]; axis = 1;
+                    end
+                case 270
+                    switch moveType
+                        case 'up',    direction = [1, 0, 0]; axis = 1;
+                        case 'down',  direction = [-1, 0, 0]; axis = 1;
+                        case 'left',  direction = [0, 1, 0]; axis = 2;
+                        case 'right', direction = [0, -1, 0]; axis = 2;
+                    end
             end
         end
 
@@ -62,7 +121,7 @@ classdef Renderer < handle
             set(this.Fig_, 'CurrentAxes', this.Eixos_);
             axis(this.Eixos_, 'equal');
             grid(this.Eixos_, 'on');
-            view(this.Eixos_, 3);
+            view(this.ViewAzimuth_, this.ViewElevation_);
             
             xlim(this.Eixos_, [0, this.Game_.Width_]); xlabel('x'); xticks(0:this.Game_.Width_);
             ylim(this.Eixos_, [0, this.Game_.Width_]); ylabel('y'); yticks(0:this.Game_.Width_);
@@ -81,7 +140,7 @@ classdef Renderer < handle
             axis(this.EixosAux_, 'off');
             grid(this.EixosAux_, 'off');
             daspect(this.EixosAux_, [1 1 1]);
-            view(this.EixosAux_, 3);
+            view(this.EixosAux_, [this.ViewAzimuth_, 30]);
             
             xlim(this.EixosAux_, [0, 4]);
             ylim(this.EixosAux_, [0, 4]);
@@ -351,7 +410,5 @@ classdef Renderer < handle
             title(this.Eixos_, 'GAME OVER!', 'FontSize', 20, 'Color', 'r');
 
         end
-
-
     end
 end
