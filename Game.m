@@ -3,6 +3,7 @@ classdef Game < handle
         Height_;
         Width_;
         Map_;
+        Score_;
 
         PecaAtiva_;
 
@@ -30,6 +31,7 @@ classdef Game < handle
             this.Height_ = height;
             this.Width_ = width;  
             this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
+            this.Score_ = 0;
             
             this.Clock_ = [];
             this.WaitTime_ = 3;
@@ -212,6 +214,7 @@ classdef Game < handle
 
                 if bloco(3) < 1 || this.Map_(bloco(1), bloco(2), min(bloco(3), this.Height_)) ~= 0
                     colocou_no_chao = true;
+                    this.Score_ = this.Score_ + 1;
                     break;
                 end
             end

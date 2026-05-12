@@ -119,6 +119,11 @@ classdef Renderer < handle
             drawnow;
         end
 
+        function drawScore(this)
+
+
+        end
+
         function DrawMenu(this)
             cla(this.Eixos_);
             set(this.Eixos_, 'XLim', [0 1], 'YLim', [0 1], 'ZLim', [0 1]);
