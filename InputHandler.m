@@ -292,6 +292,8 @@ classdef InputHandler < handle
                             this.Game_.StartGame();
                         case MenuOpt.Statistics
                         case MenuOpt.Settings
+                            this.Game_.GameState_ = GameState.Settings;
+                            this.Game_.ConfigurarInterfaceSettings();
                         case MenuOpt.Quit
                             delete(this.Game_);
                     end
@@ -337,12 +339,6 @@ classdef InputHandler < handle
 
             this.Game_.GameState_ = GameState.Menu;
             this.Game_.ConfigurarInterfaceMenu();
-        end
-
-
-        function MouseScrollCallBack(this, ~, event)
-
-
         end
     end
 end
