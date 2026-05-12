@@ -182,7 +182,7 @@ classdef Game < handle
 
                 this.PecaAtiva_(1).MoverPara(nova_pos);
             else
-                
+
                 forma = this.PecaAtiva_(1).Shape_;
                 pos = this.PecaAtiva_(1).PosicaoPivo_;
                 tipo = this.PecaAtiva_(1).Tipo_;
@@ -213,13 +213,7 @@ classdef Game < handle
             colocou_no_chao = false;
             while ~colocou_no_chao
                 nova_pos = this.PecaAtiva_(1).PosicaoPivo_ + [0, 0, -1];
-                for n = 1:size(this.PecaAtiva_(1).Shape_, 1)
-                    bloco = this.PecaAtiva_(1).Shape_(n, :) + nova_pos;
-                    if bloco(3) < 1 || this.Map_(bloco(1), bloco(2), min(bloco(3), this.Height_)) ~= 0
-                        colocou_no_chao = true;
-                        break;
-                    end
-                end
+                colocou_no_chao = this.CheckPosou(nova_pos);
                 
                 if ~colocou_no_chao
                     this.PecaAtiva_(1).MoverPara(nova_pos);

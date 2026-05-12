@@ -201,7 +201,6 @@ classdef InputHandler < handle
 
             elseif this.Game_.GameState_ == GameState.GameOver
                 this.InputHandlerGameOver(event);
-
             end
             
         end
