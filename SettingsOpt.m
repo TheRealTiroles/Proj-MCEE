@@ -1,5 +1,5 @@
 classdef SettingsOpt 
     enumeration
-        Width, Height
+        Width, Height, Dificulty
     end
 end

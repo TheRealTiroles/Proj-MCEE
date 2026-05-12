@@ -24,6 +24,7 @@ classdef Game < handle
         SettingsOpt_;
         SettingsWidth_;
         SettingsHeight_;
+        SettingsDifficulty_;
     end
 
     methods
@@ -44,6 +45,7 @@ classdef Game < handle
             this.SettingsOpt_ = SettingsOpt.Width;
             this.SettingsWidth_ = width;
             this.SettingsHeight_ = height;
+            this.SettingsDifficulty_ = 1;
             this.GameState_ = GameState.Menu;
             
             this.InputHandler_ = InputHandler(this);
@@ -69,7 +71,11 @@ classdef Game < handle
                                     'NumberTitle', 'off', ...
                                     'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
             end
-            this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Position', [0.05 0.05 0.75 0.90]);
+            if this.SettingsDifficulty_ ~= 3
+                this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Position', [0.05 0.05 0.75 0.90]);
+            else
+                this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Position', [0.05 0.05 0.95 0.90]);
+            end
             set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
             axis(this.Renderer_.Eixos_, 'equal');
             grid(this.Renderer_.Eixos_, 'on');
@@ -80,7 +86,9 @@ classdef Game < handle
             ylim(this.Renderer_.Eixos_, [0, this.Width_]); ylabel('y'); yticks(0:this.Width_);
             zlim(this.Renderer_.Eixos_, [0, this.Height_]); zlabel('z'); zticks(0:this.Height_);
             
-            this.ConfigurarInterfaceProximasPecas();
+            if this.SettingsDifficulty_ ~= 3
+                this.ConfigurarInterfaceProximasPecas();
+            end
         end
 
         function ConfigurarInterfaceProximasPecas(this)
@@ -232,10 +240,11 @@ classdef Game < handle
                     this.Map_(:, :, this.Height_) = 0;
                     
                     this.incrementScore(1);
-                    stop(this.Clock_);
-                    this.Clock_.Period = max(0.1, this.Clock_.Period - 0.1);
-                    start(this.Clock_);
-                    
+                    if this.SettingsDifficulty_ ~= 1
+                        stop(this.Clock_);
+                        this.Clock_.Period = max(0.1, this.Clock_.Period - 0.1);
+                        start(this.Clock_);
+                    end
                 end
             end
 
@@ -258,8 +267,11 @@ classdef Game < handle
                 return;
             end
 
-
-            nova_pos = this.PecaAtiva_(1).PosicaoPivo_ + [0, 0, -1];
+            z_movimento = -1;
+            if this.SettingsDifficulty_ == 1
+                z_movimento = 0;
+            end
+            nova_pos = this.PecaAtiva_(1).PosicaoPivo_ + [0, 0, z_movimento];
             
 
             colocou_no_chao = this.CheckPosou(nova_pos);
@@ -313,7 +325,24 @@ classdef Game < handle
                 end
             end
             
-            this.ClockTick();
+            forma = this.PecaAtiva_(1).Shape_;
+            pos = this.PecaAtiva_(1).PosicaoPivo_;
+            tipo = this.PecaAtiva_(1).Tipo_;
+            
+            for n = 1:size(forma, 1)
+                bloco = forma(n, :) + pos;
+                if bloco(3) <= this.Height_
+                    this.Map_(bloco(1), bloco(2), bloco(3)) = tipo;
+                end
+            end
+            
+            this.deleteFullLayers();
+
+            this.PecaAtiva_(1:3) = this.PecaAtiva_(2:4);
+            this.PecaAtiva_(4) = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
+
+            this.checkIfGameLost();
+            this.Renderer_.DrawGame();
         end
 
         function incrementScore(this, tetris)
@@ -322,6 +351,16 @@ classdef Game < handle
             if tetris
                 increment = 10;
             end
+
+            switch this.SettingsDifficulty_
+                case 1
+                    increment = increment * 1;
+                case 2
+                    increment = increment * 1.5;
+                case 3
+                    increment = increment * 2;
+            end
+
             switch this.PecaAtiva_(1).Tipo_
                 case 1
                     this.Score_ = this.Score_ + increment*10;

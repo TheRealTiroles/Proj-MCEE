@@ -53,7 +53,6 @@ classdef InputHandler < handle
                         case PauseMenuOpt.Continue
                             this.Game_.GameState_ = GameState.Wait;
                             this.Game_.ConfigurarInterfaceJogo();
-                            this.Game_.ConfigurarInterfaceProximasPecas();
                             set(this.Game_.Renderer_.Fig_, 'DeleteFcn', @(~,~) delete(this.Game_));
                             this.Game_.Renderer_.DrawGame();
                             
@@ -93,7 +92,6 @@ classdef InputHandler < handle
                             this.Game_.Map_ = zeros(this.Game_.Width_, this.Game_.Width_, this.Game_.Height_+2);
                             this.Game_.GameState_ = GameState.Playing;
                             this.Game_.ConfigurarInterfaceJogo();
-                            this.Game_.ConfigurarInterfaceProximasPecas();
                             this.Game_.StartGame();
                         case MenuOpt.Statistics
                         case MenuOpt.Settings
@@ -134,23 +132,39 @@ classdef InputHandler < handle
                     this.Game_.GameState_ = GameState.Menu;
                     this.Game_.ConfigurarInterfaceMenu();
                 case 'uparrow'
-                    this.Game_.SettingsOpt_ = SettingsOpt.Width;
+                    opcoes = enumeration('SettingsOpt');
+                    idx = find(opcoes == this.Game_.SettingsOpt_);
+                    if idx > 1
+                        this.Game_.SettingsOpt_ = opcoes(idx - 1);
+                    else
+                        this.Game_.SettingsOpt_ = opcoes(end);
+                    end
                     this.Game_.Renderer_.DrawSettings();
                 case 'downarrow'
-                    this.Game_.SettingsOpt_ = SettingsOpt.Height;
+                    opcoes = enumeration('SettingsOpt');
+                    idx = find(opcoes == this.Game_.SettingsOpt_);
+                    if idx < length(opcoes)
+                        this.Game_.SettingsOpt_ = opcoes(idx + 1);
+                    else
+                        this.Game_.SettingsOpt_ = opcoes(1);
+                    end
                     this.Game_.Renderer_.DrawSettings();
                 case 'leftarrow'
                     if this.Game_.SettingsOpt_ == SettingsOpt.Width
                         this.Game_.SettingsWidth_ = max(5, this.Game_.SettingsWidth_ - 1);
-                    else
+                    elseif this.Game_.SettingsOpt_ == SettingsOpt.Height
                         this.Game_.SettingsHeight_ = max(10, this.Game_.SettingsHeight_ - 1);
+                    else
+                        this.Game_.SettingsDifficulty_ = max(1, this.Game_.SettingsDifficulty_ - 1);
                     end
                     this.Game_.Renderer_.DrawSettings();
                 case 'rightarrow'
                     if this.Game_.SettingsOpt_ == SettingsOpt.Width
                         this.Game_.SettingsWidth_ = min(10, this.Game_.SettingsWidth_ + 1);
-                    else
+                    elseif this.Game_.SettingsOpt_ == SettingsOpt.Height
                         this.Game_.SettingsHeight_ = min(20, this.Game_.SettingsHeight_ + 1);
+                    else
+                        this.Game_.SettingsDifficulty_ = min(3, this.Game_.SettingsDifficulty_ + 1);
                     end
                     this.Game_.Renderer_.DrawSettings();
             end
@@ -265,7 +279,6 @@ classdef InputHandler < handle
                         case MenuOpt.Start
                             this.Game_.GameState_ = GameState.Playing;
                             this.Game_.ConfigurarInterfaceJogo();
-                            this.Game_.ConfigurarInterfaceProximasPecas();
                             this.Game_.StartGame();
                         case MenuOpt.Statistics
                         case MenuOpt.Settings
@@ -295,7 +308,6 @@ classdef InputHandler < handle
                         case PauseMenuOpt.Continue
                             this.Game_.GameState_ = GameState.Wait;
                             this.Game_.ConfigurarInterfaceJogo();
-                            this.Game_.ConfigurarInterfaceProximasPecas();
                             set(this.Game_.Renderer_.Fig_, 'DeleteFcn', @(~,~) delete(this.Game_));
                             this.Game_.Renderer_.DrawGame();
                             

@@ -85,8 +85,10 @@ classdef Renderer < handle
             this.DrawBlocosPosicionados();
             this.DrawPecaAtiva();
             
-            cla(this.EixosAux_);
-            this.DrawProximasPecas();
+            if ~isempty(this.EixosAux_) && isgraphics(this.EixosAux_)
+                cla(this.EixosAux_);
+                this.DrawProximasPecas();
+            end
         end
 
         function DrawProximasPecas(this)
@@ -204,8 +206,19 @@ classdef Renderer < handle
             end
             text(0.5, 0.42, aviso_height, 'FontSize', 14, 'Parent', this.Eixos_, ...
                 'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', [0.6 0.6 0.6]);
+
+            dificuldades = {'Easy', 'Normal', 'Hard'};
+            if this.Game_.SettingsOpt_ == SettingsOpt.Dificulty
+                texto_difficulty = sprintf('> Difficulty: %s <', dificuldades{this.Game_.SettingsDifficulty_});
+                color_difficulty = [1 0.5 0];
+            else
+                texto_difficulty = sprintf('Difficulty: %s', dificuldades{this.Game_.SettingsDifficulty_});
+                color_difficulty = [0 0 0];
+            end
+            text(0.5, 0.30, texto_difficulty, 'FontSize', 32, 'Parent', this.Eixos_, ...
+                'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', color_difficulty, 'FontWeight', 'bold');
             
-            text(0.5, 0.20, 'Use ↑↓ to navigate | ← → to adjust | ENTER to confirm', 'FontSize', 14, ...
+            text(0.5, 0.10, 'Use ↑↓ to navigate | ← → to adjust | ENTER to confirm', 'FontSize', 14, ...
                 'Parent', this.Eixos_, 'Units', 'normalized', 'HorizontalAlignment', 'center', ...
                 'Color', [0.5 0.5 0.5]);
             
