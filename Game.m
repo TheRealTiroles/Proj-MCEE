@@ -214,7 +214,7 @@ classdef Game < handle
 
                 if bloco(3) < 1 || this.Map_(bloco(1), bloco(2), min(bloco(3), this.Height_)) ~= 0
                     colocou_no_chao = true;
-                    this.Score_ = this.Score_ + 1;
+                    this.incrementScore(0);
                     break;
                 end
             end
@@ -225,16 +225,17 @@ classdef Game < handle
             for k = this.Height_:-1:1
 
                 if all(this.Map_(:, :, k), 'all')
-
+                    
                     for l = k:this.Height_-1
                         this.Map_(:, :, l) = this.Map_(:, :, l+1);
                     end
                     this.Map_(:, :, this.Height_) = 0;
                     
-
+                    this.incrementScore(1);
                     stop(this.Clock_);
                     this.Clock_.Period = max(0.1, this.Clock_.Period - 0.1);
                     start(this.Clock_);
+                    
                 end
             end
 
@@ -313,6 +314,25 @@ classdef Game < handle
             end
             
             this.ClockTick();
+        end
+
+        function incrementScore(this, tetris)
+            increment = 1;
+            
+            if tetris
+                increment = 10;
+            end
+            switch this.PecaAtiva_(1).Tipo_
+                case 1
+                    this.Score_ = this.Score_ + increment*10;
+                case {2, 3, 4}
+                    this.Score_ = this.Score_ + increment*20;
+                case {5, 6, 7}
+                    this.Score_ = this.Score_ + increment*30;
+                case 8
+                    this.Score_ = this.Score_ + increment*80;
+            end
+            disp(this.Score_);
         end
         
         function StartGame(this)
