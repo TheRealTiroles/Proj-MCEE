@@ -59,121 +59,24 @@ classdef Game < handle
         end
     
         function ConfigurarInterfaceJogo(this)
-            if isgraphics(this.Renderer_.Fig_)
-                clf(this.Renderer_.Fig_);
-                set(this.Renderer_.Fig_, 'Name', 'Tetris', ...
-                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
-            else
-                this.Renderer_.Fig_ = figure('Name', 'Tetris', ...
-                                    'ToolBar', 'none', ...
-                                    'Menu', 'none', ...
-                                    'WindowState', 'maximized', ...
-                                    'NumberTitle', 'off', ...
-                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event));
-            end
-            if this.SettingsDifficulty_ ~= 3
-                this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Position', [0.05 0.05 0.75 0.90]);
-            else
-                this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Position', [0.05 0.05 0.95 0.90]);
-            end
-            set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
-            axis(this.Renderer_.Eixos_, 'equal');
-            grid(this.Renderer_.Eixos_, 'on');
-            view(this.Renderer_.Eixos_, 3);
-            
-
-            xlim(this.Renderer_.Eixos_, [0, this.Width_]); xlabel('x'); xticks(0:this.Width_);
-            ylim(this.Renderer_.Eixos_, [0, this.Width_]); ylabel('y'); yticks(0:this.Width_);
-            zlim(this.Renderer_.Eixos_, [0, this.Height_]); zlabel('z'); zticks(0:this.Height_);
-            
-            if this.SettingsDifficulty_ ~= 3
-                this.ConfigurarInterfaceProximasPecas();
-            end
-        end
-
-        function ConfigurarInterfaceProximasPecas(this)
-            this.Renderer_.EixosAux_ = axes('Parent', this.Renderer_.Fig_, 'Position', [0.60 0.05 0.25 0.90]);
-            set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.EixosAux_);
-            axis(this.Renderer_.EixosAux_, 'off');
-            grid(this.Renderer_.EixosAux_, 'off');
-            daspect(this.Renderer_.EixosAux_, [1 1 1]);
-            view(this.Renderer_.EixosAux_, 3);
-            
-            xlim(this.Renderer_.EixosAux_, [0, 4]);
-            ylim(this.Renderer_.EixosAux_, [0, 4]);
-            zlim(this.Renderer_.EixosAux_, [0, 12]);
-            set(this.Renderer_.EixosAux_, 'Color', 'none');
-            title(this.Renderer_.EixosAux_, 'Próximas Peças', 'FontSize', 12);
+            this.Renderer_.SetupGameInterface(this.SettingsDifficulty_ ~= 3);
         end
 
         function ConfigurarInterfaceMenu(this)
-            if isgraphics(this.Renderer_.Fig_)
-                clf(this.Renderer_.Fig_);
-                set(this.Renderer_.Fig_, 'Name', 'Menu Tetris', ...
-                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event), ...
-                                    'WindowButtonDownFcn', @(src, event) this.InputHandler_.MouseCallBack(src, event), ...
-                                    'WindowButtonMotionFcn', @(src, event) this.InputHandler_.MouseMotionCallback(src, event));
-            else
-                this.Renderer_.Fig_ = figure('Name', 'Menu Tetris', ...
-                                    'ToolBar', 'none', ...
-                                    'Menu', 'none', ...
-                                    'WindowState', 'maximized', ...
-                                    'NumberTitle', 'off', ...
-                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event), ...
-                                    'WindowButtonDownFcn', @(src, event) this.InputHandler_.MouseCallBack(src, event), ...
-                                    'WindowButtonMotionFcn', @(src, event) this.InputHandler_.MouseMotionCallback(src, event));
-            end
+            this.Renderer_.SetupMenuInterface();
             this.MenuOpt_ = MenuOpt.Start;
-            this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Visible', 'off');
-            set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
             this.Renderer_.DrawMenu();
         end
 
         function ConfigurarInterfacPauseMenu(this)
-            if isgraphics(this.Renderer_.Fig_)
-                clf(this.Renderer_.Fig_);
-                set(this.Renderer_.Fig_, 'Name', 'Paused', ...
-                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event), ...
-                                    'WindowButtonDownFcn', @(src, event) this.InputHandler_.MouseCallBack(src, event), ...
-                                    'WindowButtonMotionFcn', @(src, event) this.InputHandler_.MouseMotionCallback(src, event));
-            else
-                this.Renderer_.Fig_ = figure('Name', 'Paused', ...
-                                    'ToolBar', 'none', ...
-                                    'Menu', 'none', ...
-                                    'WindowState', 'maximized', ...
-                                    'NumberTitle', 'off', ...
-                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event), ...
-                                    'WindowButtonDownFcn', @(src, event) this.InputHandler_.MouseCallBack(src, event), ...
-                                    'WindowButtonMotionFcn', @(src, event) this.InputHandler_.MouseMotionCallback(src, event));
-            end
+            this.Renderer_.SetupPauseMenuInterface();
             this.PauseMenuOpt_ = PauseMenuOpt.Continue;
-            this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Visible', 'off');
-            set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
             this.Renderer_.DrawPauseMenu();
         end
 
         function ConfigurarInterfaceSettings(this)
-            if isgraphics(this.Renderer_.Fig_)
-                clf(this.Renderer_.Fig_);
-                set(this.Renderer_.Fig_, 'Name', 'Settings', ...
-                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event), ...
-                                    'WindowButtonDownFcn', @(src, event) this.InputHandler_.MouseCallBack(src, event), ...
-                                    'WindowButtonMotionFcn', @(src, event) this.InputHandler_.MouseMotionCallback(src, event), ...
-                                    'WindowScrollWheelFcn', @(src, event) this.InputHandler_.MouseScrollCallBack(scr, event));
-            else
-                this.Renderer_.Fig_ = figure('Name', 'Settings', ...
-                                    'ToolBar', 'none', ...
-                                    'Menu', 'none', ...
-                                    'WindowState', 'maximized', ...
-                                    'NumberTitle', 'off', ...
-                                    'KeyPressFcn', @(src, event) this.InputHandler_.TecladoCallback(src, event), ...
-                                    'WindowButtonDownFcn', @(src, event) this.InputHandler_.MouseCallBack(src, event), ...
-                                    'WindowButtonMotionFcn', @(src, event) this.InputHandler_.MouseMotionCallback(src, event), ...
-                                    'WindowScrollWheelFcn', @(src, event) this.InputHandler_.MouseScrollCallBack(scr, event));
-            end
+            this.Renderer_.SetupSettingsInterface();
             this.SettingsOpt_ = SettingsOpt.Width;
-            this.Renderer_.Eixos_ = axes('Parent', this.Renderer_.Fig_, 'Visible', 'off');
-            set(this.Renderer_.Fig_, 'CurrentAxes', this.Renderer_.Eixos_);
             this.Renderer_.DrawSettings();
         end
 
@@ -272,16 +175,14 @@ classdef Game < handle
                 z_movimento = 0;
             end
             nova_pos = this.PecaAtiva_(1).PosicaoPivo_ + [0, 0, z_movimento];
-            
 
             colocou_no_chao = this.CheckPosou(nova_pos);
-            
 
             if ~colocou_no_chao
 
                 this.PecaAtiva_(1).MoverPara(nova_pos);
             else
-
+                
                 forma = this.PecaAtiva_(1).Shape_;
                 pos = this.PecaAtiva_(1).PosicaoPivo_;
                 tipo = this.PecaAtiva_(1).Tipo_;

@@ -26,6 +26,98 @@ classdef Renderer < handle
             end
         end
 
+        function SetupFigure(this, title_str, keyPressFcn)
+            if isgraphics(this.Fig_)
+                clf(this.Fig_);
+                set(this.Fig_, 'Name', title_str, 'KeyPressFcn', keyPressFcn);
+            else
+                this.Fig_ = figure('Name', title_str, ...
+                                    'ToolBar', 'none', ...
+                                    'Menu', 'none', ...
+                                    'WindowState', 'maximized', ...
+                                    'NumberTitle', 'off', ...
+                                    'KeyPressFcn', keyPressFcn);
+            end
+        end
+
+        function SetupFigureWithMouse(this, title_str, keyPressFcn, mouseDownFcn, mouseMotionFcn)
+            this.SetupFigure(title_str, keyPressFcn);
+            set(this.Fig_, 'WindowButtonDownFcn', mouseDownFcn, 'WindowButtonMotionFcn', mouseMotionFcn);
+        end
+
+        function SetupFigureWithScroll(this, title_str, keyPressFcn, mouseDownFcn, mouseMotionFcn, scrollFcn)
+            this.SetupFigureWithMouse(title_str, keyPressFcn, mouseDownFcn, mouseMotionFcn);
+            set(this.Fig_, 'WindowScrollWheelFcn', scrollFcn);
+        end
+
+        function SetupGameInterface(this, showNextPieces)
+            this.SetupFigure('Tetris', @(src, event) this.Game_.InputHandler_.TecladoCallback(src, event));
+            
+            if showNextPieces
+                this.Eixos_ = axes('Parent', this.Fig_, 'Position', [0.05 0.05 0.75 0.90]);
+            else
+                this.Eixos_ = axes('Parent', this.Fig_, 'Position', [0.05 0.05 0.95 0.90]);
+            end
+            
+            set(this.Fig_, 'CurrentAxes', this.Eixos_);
+            axis(this.Eixos_, 'equal');
+            grid(this.Eixos_, 'on');
+            view(this.Eixos_, 3);
+            
+            xlim(this.Eixos_, [0, this.Game_.Width_]); xlabel('x'); xticks(0:this.Game_.Width_);
+            ylim(this.Eixos_, [0, this.Game_.Width_]); ylabel('y'); yticks(0:this.Game_.Width_);
+            zlim(this.Eixos_, [0, this.Game_.Height_]); zlabel('z'); zticks(0:this.Game_.Height_);
+            
+            if showNextPieces
+                this.SetupNextPiecesDisplay();
+            else
+                this.EixosAux_ = [];
+            end
+        end
+
+        function SetupNextPiecesDisplay(this)
+            this.EixosAux_ = axes('Parent', this.Fig_, 'Position', [0.60 0.05 0.25 0.90]);
+            set(this.Fig_, 'CurrentAxes', this.EixosAux_);
+            axis(this.EixosAux_, 'off');
+            grid(this.EixosAux_, 'off');
+            daspect(this.EixosAux_, [1 1 1]);
+            view(this.EixosAux_, 3);
+            
+            xlim(this.EixosAux_, [0, 4]);
+            ylim(this.EixosAux_, [0, 4]);
+            zlim(this.EixosAux_, [0, 12]);
+            set(this.EixosAux_, 'Color', 'none');
+            title(this.EixosAux_, 'Próximas Peças', 'FontSize', 12);
+        end
+
+        function SetupMenuInterface(this)
+            this.SetupFigureWithMouse('Menu Tetris', @(src, event) this.Game_.InputHandler_.TecladoCallback(src, event), ...
+                @(src, event) this.Game_.InputHandler_.MouseCallBack(src, event), ...
+                @(src, event) this.Game_.InputHandler_.MouseMotionCallback(src, event));
+            
+            this.Eixos_ = axes('Parent', this.Fig_, 'Visible', 'off');
+            set(this.Fig_, 'CurrentAxes', this.Eixos_);
+        end
+
+        function SetupPauseMenuInterface(this)
+            this.SetupFigureWithMouse('Paused', @(src, event) this.Game_.InputHandler_.TecladoCallback(src, event), ...
+                @(src, event) this.Game_.InputHandler_.MouseCallBack(src, event), ...
+                @(src, event) this.Game_.InputHandler_.MouseMotionCallback(src, event));
+            
+            this.Eixos_ = axes('Parent', this.Fig_, 'Visible', 'off');
+            set(this.Fig_, 'CurrentAxes', this.Eixos_);
+        end
+
+        function SetupSettingsInterface(this)
+            this.SetupFigureWithScroll('Settings', @(src, event) this.Game_.InputHandler_.TecladoCallback(src, event), ...
+                @(src, event) this.Game_.InputHandler_.MouseCallBack(src, event), ...
+                @(src, event) this.Game_.InputHandler_.MouseMotionCallback(src, event), ...
+                @(src, event) this.Game_.InputHandler_.MouseScrollCallBack(src, event));
+            
+            this.Eixos_ = axes('Parent', this.Fig_, 'Visible', 'off');
+            set(this.Fig_, 'CurrentAxes', this.Eixos_);
+        end
+
         function DrawBlocosPosicionados(this)
            
             v_unit = [0 0 0; 1 0 0; 1 1 0; 0 1 0; 0 0 1; 1 0 1; 1 1 1; 0 1 1];
