@@ -2,14 +2,41 @@ classdef InputHandler < handle
     properties
 
         Game_;
-        LastInput_;
+        LastClick_;
+        LastScroll_;
 
     end
 
     methods
         function this = InputHandler(game)
             this.Game_ = game;
-            this.LastInput_ = tic;
+            this.LastClick_ = tic;
+            this.LastScroll_ = tic;
+        end
+
+        function TecladoCallback(this, ~, event)
+            tempo_decorrido = toc(this.LastClick_) * 1000;
+            if tempo_decorrido < 100
+                return;
+            end
+            this.LastClick_ = tic;
+            
+            if this.Game_.GameState_ == GameState.Playing
+                this.InputHandlerGame(event);
+            
+            elseif this.Game_.GameState_ == GameState.Paused
+                this.InputHandlerPaused(event);
+
+            elseif this.Game_.GameState_ == GameState.Menu
+                this.InputHandlerMenu(event);
+
+            elseif this.Game_.GameState_ == GameState.Settings
+                this.InputHandlerSettings(event);
+
+            elseif this.Game_.GameState_ == GameState.GameOver
+                this.InputHandlerGameOver(event);
+            end
+            
         end
 
         function InputHandlerGame(this, event)
@@ -180,41 +207,44 @@ classdef InputHandler < handle
             end
         end
 
-        function TecladoCallback(this, ~, event)
-            tempo_decorrido = toc(this.LastInput_) * 1000;
-            if tempo_decorrido < 100
-                return;
-            end
-            this.LastInput_ = tic;
-            
-            if this.Game_.GameState_ == GameState.Playing
-                this.InputHandlerGame(event);
-            
-            elseif this.Game_.GameState_ == GameState.Paused
-                this.InputHandlerPaused(event);
-
-            elseif this.Game_.GameState_ == GameState.Menu
-                this.InputHandlerMenu(event);
-
-            elseif this.Game_.GameState_ == GameState.Settings
-                this.InputHandlerSettings(event);
-
-            elseif this.Game_.GameState_ == GameState.GameOver
-                this.InputHandlerGameOver(event);
-            end
-            
-        end
+        
 
         function MouseMotionCallback(this, ~, ~)
             if this.Game_.GameState_ == GameState.Menu
-                this.UpdateMenuMouseHover();
+                this.MenuMouseHover();
             
             elseif this.Game_.GameState_ == GameState.Paused
-                this.UpdatePauseMenuMouseHover();
+                this.PauseMenuMouseHover();
+            elseif this.Game_.GameState_ == GameState.Settings
+                this.SettingsMouseHover();
             end
         end
 
-        function UpdateMenuMouseHover(this)
+        function SettingsMouseHover(this)
+            pt = get(this.Game_.Renderer_.Eixos_, 'CurrentPoint');
+            mouse_x = pt(1, 1);
+            mouse_y = pt(1, 2);
+            
+            opcoes = enumeration('SettingsOpt');
+            pos_y = [0.70, 0.50, 0.30];
+            center_x = 0.5;
+            tolerance_y = 0.05;
+            tolerance_x = 0.25;
+            
+            for i = 1:3
+                if abs(mouse_y - pos_y(i)) < tolerance_y && abs(mouse_x - center_x) < tolerance_x
+                    if this.Game_.SettingsOpt_ ~= opcoes(i)
+                        this.Game_.SettingsOpt_ = opcoes(i);
+                        this.Game_.Renderer_.DrawSettings();
+                    end
+                    return;
+                end
+            end
+
+
+        end
+
+        function MenuMouseHover(this)
             pt = get(this.Game_.Renderer_.Eixos_, 'CurrentPoint');
             mouse_x = pt(1, 1);
             mouse_y = pt(1, 2);
@@ -236,7 +266,7 @@ classdef InputHandler < handle
             end
         end
 
-        function UpdatePauseMenuMouseHover(this)
+        function PauseMenuMouseHover(this)
             pt = get(this.Game_.Renderer_.Eixos_, 'CurrentPoint');
             mouse_x = pt(1, 1);
             mouse_y = pt(1, 2);
@@ -258,19 +288,19 @@ classdef InputHandler < handle
             end
         end
 
-        function MouseCallBack(this, ~, ~)
+        function MouseClickCallback(this, ~, ~)
             if this.Game_.GameState_ == GameState.Menu
-                this.InputHandlerMenuMouse();
+                this.MenuMouseClick();
             
             elseif this.Game_.GameState_ == GameState.Paused
-                this.InputHandlerPausedMouse();
+                this.PauseMenuMouseClick();
                 
             elseif this.Game_.GameState_ == GameState.GameOver
-                this.InputHandlerGameOverMouse();
+                this.GameOverMouseClick();
             end
         end
 
-        function InputHandlerMenuMouse(this)
+        function MenuMouseClick(this)
             pt = get(this.Game_.Renderer_.Eixos_, 'CurrentPoint');
             mouse_x = pt(1, 1);
             mouse_y = pt(1, 2);
@@ -301,7 +331,7 @@ classdef InputHandler < handle
             end
         end
 
-        function InputHandlerPausedMouse(this)
+        function PauseMenuMouseClick(this)
             pt = get(this.Game_.Renderer_.Eixos_, 'CurrentPoint');
             mouse_x = pt(1, 1);
             mouse_y = pt(1, 2);
@@ -334,7 +364,51 @@ classdef InputHandler < handle
             end
         end
 
-        function InputHandlerGameOverMouse(this)
+        function MouseScrollCallback(this, ~, event)
+            tempo_decorrido = toc(this.LastScroll_) * 1000;
+            if this.Game_.SettingsOpt_ == SettingsOpt.Dificulty
+                if tempo_decorrido < 100
+                    return;
+                end
+            else
+                if tempo_decorrido < 50
+                    return;
+                end
+            end
+            this.LastScroll_ = tic;
+
+
+            if this.Game_.GameState_ == GameState.Settings
+                this.SettingsMouseScroll(event);
+            end
+
+        end
+
+        function SettingsMouseScroll(this, event)
+            direcao = event.VerticalScrollCount; 
+            
+            if direcao > 0
+                if this.Game_.SettingsOpt_ == SettingsOpt.Width
+                    this.Game_.SettingsWidth_ = max(5, this.Game_.SettingsWidth_ - 1);
+                elseif this.Game_.SettingsOpt_ == SettingsOpt.Height
+                    this.Game_.SettingsHeight_ = max(10, this.Game_.SettingsHeight_ - 1);
+                else
+                    this.Game_.SettingsDifficulty_ = max(1, this.Game_.SettingsDifficulty_ - 1);
+                end
+                this.Game_.Renderer_.DrawSettings();
+            elseif direcao < 0 
+                if this.Game_.SettingsOpt_ == SettingsOpt.Width
+                    this.Game_.SettingsWidth_ = min(10, this.Game_.SettingsWidth_ + 1);
+                elseif this.Game_.SettingsOpt_ == SettingsOpt.Height
+                    this.Game_.SettingsHeight_ = min(20, this.Game_.SettingsHeight_ + 1);
+                else
+                    this.Game_.SettingsDifficulty_ = min(3, this.Game_.SettingsDifficulty_ + 1);
+                end
+                this.Game_.Renderer_.DrawSettings();
+            end
+        end
+
+        function GameOverMouseClick(this)
 
             this.Game_.GameState_ = GameState.Menu;
             this.Game_.ConfigurarInterfaceMenu();
