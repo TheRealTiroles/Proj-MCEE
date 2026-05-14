@@ -157,6 +157,7 @@ classdef InputHandler < handle
         function InputHandlerGameOver(this, event)
 
             if ~isempty(event.Key)
+                this.Game_.ResetGame();
                 this.Game_.GameState_ = GameState.Menu;
                 this.Game_.ConfigurarInterfaceMenu();
             end

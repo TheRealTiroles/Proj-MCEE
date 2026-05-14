@@ -9,6 +9,7 @@ classdef Game < handle
 
         Clock_;
         ClockWait_;
+        Theme_;
 
     
         PosFutura_;
@@ -38,6 +39,9 @@ classdef Game < handle
             this.WaitTime_ = 3;
             this.ClockWait_ = [];
 
+            [a, fs] = audioread("Tetris - Main Theme (Synthwave Version).mp3");
+            this.Theme_ = audioplayer(a, fs);
+
             this.PecaAtiva_ = PecaAtiva.empty(1, 0);
 
             this.MenuOpt_ = MenuOpt.Start;
@@ -56,6 +60,7 @@ classdef Game < handle
 
         function ResetGame(this)
             this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
+            stop(this.Theme_);
         end
     
         function ConfigurarInterfaceJogo(this)
@@ -69,6 +74,7 @@ classdef Game < handle
         end
 
         function ConfigurarInterfacPauseMenu(this)
+            pause(this.Theme_);
             this.Renderer_.SetupPauseMenuInterface();
             this.PauseMenuOpt_ = PauseMenuOpt.Continue;
             this.Renderer_.DrawPauseMenu();
@@ -111,6 +117,7 @@ classdef Game < handle
             end
             if this.WaitTime_ <= 0
                 this.GameState_ = GameState.Playing;
+                resume(this.Theme_);
                 this.WaitTime_ = 3;
             end
             if this.GameState_ ~= GameState.Wait
@@ -274,7 +281,7 @@ classdef Game < handle
             for i = 1:4
                 this.PecaAtiva_(i) = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
             end
-
+            
             t_antigos = timerfind;
             if ~isempty(t_antigos)
                 stop(t_antigos);
@@ -285,12 +292,14 @@ classdef Game < handle
                 1, 'TimerFcn', @(src, event) this.ClockTick());
             this.ClockWait_ = timer('ExecutionMode', 'fixedRate', 'Period',...
                 1, 'TimerFcn', @(src, event) this.WaitTick());
-
+            
 
             set(this.Renderer_.Fig_, 'DeleteFcn', @(~,~) delete(this));
             
             start(this.Clock_);
             start(this.ClockWait_);
+            play(this.Theme_);
+            
         end
 
         function GameOver(this)
