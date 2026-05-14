@@ -60,6 +60,7 @@ classdef Game < handle
 
         function ResetGame(this)
             this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
+            this.Score_ = 0;
             stop(this.Theme_);
         end
     
@@ -84,6 +85,11 @@ classdef Game < handle
             this.Renderer_.SetupSettingsInterface();
             this.SettingsOpt_ = SettingsOpt.Width;
             this.Renderer_.DrawSettings();
+        end
+
+        function ConfigurarInterfaceGameOver(this)
+            this.Renderer_.SetupGameOverInterface();
+            this.Renderer_.DrawGameOver();
         end
 
         function ChangeView(this, x)
@@ -169,7 +175,6 @@ classdef Game < handle
                     return;
                 end
             end
-
         end
 
         function ClockTick(this)
@@ -208,6 +213,9 @@ classdef Game < handle
 
                 this.checkIfGameLost();
                 
+                if this.GameState_ == GameState.GameOver
+                    return;
+                end
             end            
             this.Renderer_.DrawGame();
         end
@@ -299,14 +307,14 @@ classdef Game < handle
             start(this.Clock_);
             start(this.ClockWait_);
             play(this.Theme_);
-            
         end
 
         function GameOver(this)
             this.GameState_ = GameState.GameOver;
             stop(this.Clock_);
-            this.Renderer_.DrawGameOver();
-            this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
+            stop(this.ClockWait_);
+            stop(this.Theme_);
+            this.ConfigurarInterfaceGameOver();
         end
 
 
@@ -326,6 +334,5 @@ classdef Game < handle
                 end
             end
         end
-
     end
 end

@@ -36,7 +36,6 @@ classdef InputHandler < handle
             elseif this.Game_.GameState_ == GameState.GameOver
                 this.InputHandlerGameOver(event);
             end
-            
         end
 
         function InputHandlerGame(this, event)
@@ -114,7 +113,6 @@ classdef InputHandler < handle
                     end
                     this.Game_.Renderer_.DrawPauseMenu();
             end
-
         end
 
         function InputHandlerMenu(this, event)
@@ -155,18 +153,23 @@ classdef InputHandler < handle
         end
 
         function InputHandlerGameOver(this, event)
-
-            if ~isempty(event.Key)
-                this.Game_.ResetGame();
-                this.Game_.GameState_ = GameState.Menu;
-                this.Game_.ConfigurarInterfaceMenu();
+            switch event.Key
+                case 'return'
+                    this.Game_.ResetGame();
+                    this.Game_.GameState_ = GameState.Menu;
+                    this.Game_.ConfigurarInterfaceMenu();
+                    
+                case 'escape'
+                    close(this.Game_.Renderer_.Fig_);
             end
-
         end
 
         function InputHandlerSettings(this, event)
             switch event.Key
                 case 'return'
+                    this.Game_.GameState_ = GameState.Menu;
+                    this.Game_.ConfigurarInterfaceMenu();
+                case 'escape'
                     this.Game_.GameState_ = GameState.Menu;
                     this.Game_.ConfigurarInterfaceMenu();
                 case 'uparrow'
@@ -241,8 +244,6 @@ classdef InputHandler < handle
                     return;
                 end
             end
-
-
         end
 
         function MenuMouseHover(this)
@@ -295,9 +296,6 @@ classdef InputHandler < handle
             
             elseif this.Game_.GameState_ == GameState.Paused
                 this.PauseMenuMouseClick();
-                
-            elseif this.Game_.GameState_ == GameState.GameOver
-                this.GameOverMouseClick();
             end
         end
 
@@ -382,7 +380,6 @@ classdef InputHandler < handle
             if this.Game_.GameState_ == GameState.Settings
                 this.SettingsMouseScroll(event);
             end
-
         end
 
         function SettingsMouseScroll(this, event)
@@ -407,12 +404,6 @@ classdef InputHandler < handle
                 end
                 this.Game_.Renderer_.DrawSettings();
             end
-        end
-
-        function GameOverMouseClick(this)
-
-            this.Game_.GameState_ = GameState.Menu;
-            this.Game_.ConfigurarInterfaceMenu();
         end
     end
 end

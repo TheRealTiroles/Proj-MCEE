@@ -176,7 +176,19 @@ classdef Renderer < handle
             this.Eixos_ = axes('Parent', this.Fig_, 'Visible', 'off');
             set(this.Fig_, 'CurrentAxes', this.Eixos_);
         end
-
+        function SetupGameOverInterface(this)
+            this.SetupFigure('Game Over', @(src, event) this.Game_.InputHandler_.TecladoCallback(src, event));
+            
+            this.Eixos_ = axes('Parent', this.Fig_, 'Position', [0.05 0.05 0.75 0.90]);
+            set(this.Fig_, 'CurrentAxes', this.Eixos_);
+            axis(this.Eixos_, 'equal');
+            grid(this.Eixos_, 'on');
+            view(this.ViewAzimuth_, this.ViewElevation_);
+            
+            xlim(this.Eixos_, [0, this.Game_.Width_]); xlabel('x'); xticks(0:this.Game_.Width_);
+            ylim(this.Eixos_, [0, this.Game_.Width_]); ylabel('y'); yticks(0:this.Game_.Width_);
+            zlim(this.Eixos_, [0, this.Game_.Height_]); zlabel('z'); zticks(0:this.Game_.Height_);
+        end
         function DrawBlocosPosicionados(this)
            
             v_unit = [0 0 0; 1 0 0; 1 1 0; 0 1 0; 0 0 1; 1 0 1; 1 1 1; 0 1 1];
@@ -237,8 +249,10 @@ classdef Renderer < handle
             this.DrawPecaAtiva();
             
             if ~isempty(this.EixosAux_) && isgraphics(this.EixosAux_)
-                cla(this.EixosAux_);
-                this.DrawProximasPecas();
+                if this.Game_.GameState_ ~= GameState.GameOver
+                    cla(this.EixosAux_);
+                    this.DrawProximasPecas();
+                end
             end
         end
 
@@ -408,9 +422,61 @@ classdef Renderer < handle
         end
 
         function DrawGameOver(this)
+            cla(this.Eixos_);
+            this.DrawBlocosPosicionados();
+            this.DrawPecaAtiva();
+            
+            % Deletar EixosAux_ se existir para garantir limpeza
+            if ~isempty(this.EixosAux_) && isgraphics(this.EixosAux_)
+                delete(this.EixosAux_);
+            end
+            
+            % Criar novo eixo para o overlay
+            this.EixosAux_ = axes('Parent', this.Fig_, 'Position', [0.05 0.05 0.75 0.90]);
+            set(this.EixosAux_, 'XLim', [0 1], 'YLim', [0 1]);
+            axis(this.EixosAux_, 'off');
+            
+            % Colocar o overlay por cima
+            uistack(this.EixosAux_, 'top');
+            
+            rectangle(this.EixosAux_, 'Position', [0, 0, 1, 1], ...
+                'FaceColor', [0, 0, 0], 'EdgeColor', 'none', 'FaceAlpha', 0.7);
+            
 
-            title(this.Eixos_, 'GAME OVER!', 'FontSize', 20, 'Color', 'r');
+            text(0.5, 0.75, 'GAME OVER!', ...
+                'Parent', this.EixosAux_, ...
+                'FontSize', 60, ...
+                'FontWeight', 'bold', ...
+                'Color', [1 0 0], ...
+                'HorizontalAlignment', 'center', ...
+                'VerticalAlignment', 'middle');
+            
 
+            scoreText = sprintf('Pontuação Final: %d', this.Game_.Score_);
+            text(0.5, 0.55, scoreText, ...
+                'Parent', this.EixosAux_, ...
+                'FontSize', 40, ...
+                'FontWeight', 'bold', ...
+                'Color', [1 1 0], ...
+                'HorizontalAlignment', 'center', ...
+                'VerticalAlignment', 'middle');
+            
+
+            text(0.5, 0.35, 'Pressione ENTER para voltar ao Menu', ...
+                'Parent', this.EixosAux_, ...
+                'FontSize', 18, ...
+                'Color', [1 1 1], ...
+                'HorizontalAlignment', 'center', ...
+                'VerticalAlignment', 'middle');
+            
+            text(0.5, 0.25, 'ou ESC para sair', ...
+                'Parent', this.EixosAux_, ...
+                'FontSize', 16, ...
+                'Color', [0.8 0.8 0.8], ...
+                'HorizontalAlignment', 'center', ...
+                'VerticalAlignment', 'middle');
+            
+            drawnow;
         end
     end
 end
