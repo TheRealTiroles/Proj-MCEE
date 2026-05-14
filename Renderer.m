@@ -339,7 +339,7 @@ classdef Renderer < handle
                 texto_width = sprintf('Width: %d', this.Game_.SettingsWidth_);
                 color_width = [0 0 0];
             end
-            text(0.5, 0.70, texto_width, 'FontSize', 32, 'Parent', this.Eixos_, ...
+            text(0.5, 0.75, texto_width, 'FontSize', 32, 'Parent', this.Eixos_, ...
                 'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', color_width, 'FontWeight', 'bold');
 
             if this.Game_.SettingsWidth_ == 10
@@ -349,7 +349,7 @@ classdef Renderer < handle
             else
                 aviso_width = '';
             end
-            text(0.5, 0.62, aviso_width, 'FontSize', 14, 'Parent', this.Eixos_, ...
+            text(0.5, 0.69, aviso_width, 'FontSize', 14, 'Parent', this.Eixos_, ...
                 'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', [0.6 0.6 0.6]);
             
             if this.Game_.SettingsOpt_ == SettingsOpt.Height
@@ -359,7 +359,7 @@ classdef Renderer < handle
                 texto_height = sprintf('Height: %d', this.Game_.SettingsHeight_);
                 color_height = [0 0 0];
             end
-            text(0.5, 0.50, texto_height, 'FontSize', 32, 'Parent', this.Eixos_, ...
+            text(0.5, 0.60, texto_height, 'FontSize', 32, 'Parent', this.Eixos_, ...
                 'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', color_height, 'FontWeight', 'bold');
 
             if this.Game_.SettingsHeight_ == 20
@@ -369,21 +369,55 @@ classdef Renderer < handle
             else
                 aviso_height = '';
             end
-            text(0.5, 0.42, aviso_height, 'FontSize', 14, 'Parent', this.Eixos_, ...
+            text(0.5, 0.54, aviso_height, 'FontSize', 14, 'Parent', this.Eixos_, ...
                 'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', [0.6 0.6 0.6]);
 
             dificuldades = {'Easy', 'Normal', 'Hard'};
-            if this.Game_.SettingsOpt_ == SettingsOpt.Dificulty
+            if this.Game_.SettingsOpt_ == SettingsOpt.Difficulty
                 texto_difficulty = sprintf('> Difficulty: %s <', dificuldades{this.Game_.SettingsDifficulty_});
                 color_difficulty = [1 0.5 0];
             else
                 texto_difficulty = sprintf('Difficulty: %s', dificuldades{this.Game_.SettingsDifficulty_});
                 color_difficulty = [0 0 0];
             end
-            text(0.5, 0.30, texto_difficulty, 'FontSize', 32, 'Parent', this.Eixos_, ...
+            text(0.5, 0.45, texto_difficulty, 'FontSize', 32, 'Parent', this.Eixos_, ...
                 'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', color_difficulty, 'FontWeight', 'bold');
             
-            text(0.5, 0.10, 'Use ↑↓ to navigate | ← → to adjust | ENTER to confirm', 'FontSize', 14, ...
+
+            if this.Game_.SettingsToggledMusic_
+                str_music = 'ON';
+            else
+                str_music = 'OFF';
+            end
+
+            if this.Game_.SettingsOpt_ == SettingsOpt.Music
+                texto_music = sprintf('> Music: %s <', str_music);
+                color_music = [1 0.5 0];
+            else
+                texto_music = sprintf('Sound: %s', str_music);
+                color_music = [0 0 0];
+            end
+            text(0.5, 0.32, texto_music, 'FontSize', 32, 'Parent', this.Eixos_, ...
+                'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', color_music, 'FontWeight', 'bold');
+
+
+            if this.Game_.SettingsToggledSoundEffects_
+                str_soundeffects = 'ON';
+            else
+                str_soundeffects = 'OFF';
+            end
+
+            if this.Game_.SettingsOpt_ == SettingsOpt.Sound_Effects
+                texto_soundeffects = sprintf('> Sound Effects: %s <', str_soundeffects);
+                color_soundeffects = [1 0.5 0];
+            else
+                texto_soundeffects = sprintf('Sound Effects: %s', str_soundeffects);
+                color_soundeffects = [0 0 0];
+            end
+            text(0.5, 0.20, texto_soundeffects, 'FontSize', 32, 'Parent', this.Eixos_, ...
+                'Units', 'normalized', 'HorizontalAlignment', 'center', 'Color', color_soundeffects, 'FontWeight', 'bold');
+            
+            text(0.5, 0.08, 'Use ↑↓ to navigate | ← → to adjust | ENTER to confirm', 'FontSize', 14, ...
                 'Parent', this.Eixos_, 'Units', 'normalized', 'HorizontalAlignment', 'center', ...
                 'Color', [0.5 0.5 0.5]);
             
@@ -426,17 +460,16 @@ classdef Renderer < handle
             this.DrawBlocosPosicionados();
             this.DrawPecaAtiva();
             
-            % Deletar EixosAux_ se existir para garantir limpeza
+
             if ~isempty(this.EixosAux_) && isgraphics(this.EixosAux_)
                 delete(this.EixosAux_);
             end
             
-            % Criar novo eixo para o overlay
-            this.EixosAux_ = axes('Parent', this.Fig_, 'Position', [0.05 0.05 0.75 0.90]);
+
+            this.EixosAux_ = axes('Parent', this.Fig_, 'Position', [0 0 1 1]);
             set(this.EixosAux_, 'XLim', [0 1], 'YLim', [0 1]);
             axis(this.EixosAux_, 'off');
             
-            % Colocar o overlay por cima
             uistack(this.EixosAux_, 'top');
             
             rectangle(this.EixosAux_, 'Position', [0, 0, 1, 1], ...

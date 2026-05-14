@@ -26,6 +26,8 @@ classdef Game < handle
         SettingsWidth_;
         SettingsHeight_;
         SettingsDifficulty_;
+        SettingsToggledMusic_;
+        SettingsToggledSoundEffects_;
     end
 
     methods
@@ -44,13 +46,17 @@ classdef Game < handle
 
             this.PecaAtiva_ = PecaAtiva.empty(1, 0);
 
+            this.GameState_ = GameState.Menu;
+
             this.MenuOpt_ = MenuOpt.Start;
             this.PauseMenuOpt_ = PauseMenuOpt.Continue;
+
             this.SettingsOpt_ = SettingsOpt.Width;
             this.SettingsWidth_ = width;
             this.SettingsHeight_ = height;
             this.SettingsDifficulty_ = 1;
-            this.GameState_ = GameState.Menu;
+            this.SettingsToggledMusic_ = false;
+            this.SettingsToggledSoundEffects_ = false;
             
             this.InputHandler_ = InputHandler(this);
             this.Renderer_ = Renderer(this);
@@ -61,7 +67,9 @@ classdef Game < handle
         function ResetGame(this)
             this.Map_ = zeros(this.Width_, this.Width_, this.Height_+2);
             this.Score_ = 0;
-            stop(this.Theme_);
+            if this.SettingsToggledMusic_
+                stop(this.Theme_);     
+            end
         end
     
         function ConfigurarInterfaceJogo(this)
@@ -75,7 +83,10 @@ classdef Game < handle
         end
 
         function ConfigurarInterfacPauseMenu(this)
-            pause(this.Theme_);
+            if this.SettingsToggledMusic_
+                pause(this.Theme_);
+            end
+
             this.Renderer_.SetupPauseMenuInterface();
             this.PauseMenuOpt_ = PauseMenuOpt.Continue;
             this.Renderer_.DrawPauseMenu();
@@ -123,7 +134,9 @@ classdef Game < handle
             end
             if this.WaitTime_ <= 0
                 this.GameState_ = GameState.Playing;
-                resume(this.Theme_);
+                if this.SettingsToggledMusic_
+                    resume(this.Theme_);
+                end
                 this.WaitTime_ = 3;
             end
             if this.GameState_ ~= GameState.Wait
@@ -249,7 +262,7 @@ classdef Game < handle
             this.deleteFullLayers();
 
             this.PecaAtiva_(1:3) = this.PecaAtiva_(2:4);
-            this.PecaAtiva_(4) = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
+            this.PecaAtiva_(4) = PecaAtiva([round(this.Width_/2), round(this.Width_/2), this.Height_], this);
 
             this.checkIfGameLost();
             this.Renderer_.DrawGame();
@@ -287,7 +300,7 @@ classdef Game < handle
         function StartGame(this)
             this.PecaAtiva_ = PecaAtiva.empty(1, 0);
             for i = 1:4
-                this.PecaAtiva_(i) = PecaAtiva([floor(this.Width_/2), floor(this.Width_/2), this.Height_], this);
+                this.PecaAtiva_(i) = PecaAtiva([round(this.Width_/2), round(this.Width_/2), this.Height_], this);
             end
             
             t_antigos = timerfind;
@@ -306,17 +319,20 @@ classdef Game < handle
             
             start(this.Clock_);
             start(this.ClockWait_);
-            play(this.Theme_);
+            if this.SettingsToggledMusic_
+                play(this.Theme_);
+            end                
         end
 
         function GameOver(this)
             this.GameState_ = GameState.GameOver;
             stop(this.Clock_);
             stop(this.ClockWait_);
-            stop(this.Theme_);
+            if this.SettingsToggledMusic_
+                stop(this.Theme_);
+            end
             this.ConfigurarInterfaceGameOver();
         end
-
 
         function delete(this)
             t_antigos = timerfind; 

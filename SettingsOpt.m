@@ -1,5 +1,5 @@
 classdef SettingsOpt 
     enumeration
-        Width, Height, Dificulty
+        Width, Height, Difficulty, Music, Sound_Effects
     end
 end

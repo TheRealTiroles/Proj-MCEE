@@ -191,21 +191,39 @@ classdef InputHandler < handle
                     end
                     this.Game_.Renderer_.DrawSettings();
                 case 'leftarrow'
-                    if this.Game_.SettingsOpt_ == SettingsOpt.Width
-                        this.Game_.SettingsWidth_ = max(5, this.Game_.SettingsWidth_ - 1);
-                    elseif this.Game_.SettingsOpt_ == SettingsOpt.Height
-                        this.Game_.SettingsHeight_ = max(10, this.Game_.SettingsHeight_ - 1);
-                    else
-                        this.Game_.SettingsDifficulty_ = max(1, this.Game_.SettingsDifficulty_ - 1);
+                    switch this.Game_.SettingsOpt_
+                        case SettingsOpt.Width
+                            this.Game_.SettingsWidth_ = max(5, this.Game_.SettingsWidth_ - 1);
+
+                        case SettingsOpt.Height
+                            this.Game_.SettingsHeight_ = max(10, this.Game_.SettingsHeight_ - 1);
+
+                        case SettingsOpt.Difficulty
+                            this.Game_.SettingsDifficulty_ = max(1, this.Game_.SettingsDifficulty_ - 1);
+
+                        case SettingsOpt.Music
+                            this.Game_.SettingsToggledMusic_ = ~this.Game_.SettingsToggledMusic_;
+                        case SettingsOpt.Sound_Effects
+                            this.Game_.SettingsToggledSoundEffects_ = ~this.Game_.SettingsToggledSoundEffects_;
                     end
                     this.Game_.Renderer_.DrawSettings();
                 case 'rightarrow'
-                    if this.Game_.SettingsOpt_ == SettingsOpt.Width
-                        this.Game_.SettingsWidth_ = min(10, this.Game_.SettingsWidth_ + 1);
-                    elseif this.Game_.SettingsOpt_ == SettingsOpt.Height
-                        this.Game_.SettingsHeight_ = min(20, this.Game_.SettingsHeight_ + 1);
-                    else
-                        this.Game_.SettingsDifficulty_ = min(3, this.Game_.SettingsDifficulty_ + 1);
+
+                    switch this.Game_.SettingsOpt_
+                        case SettingsOpt.Width
+                            this.Game_.SettingsWidth_ = min(10, this.Game_.SettingsWidth_ + 1);
+
+                        case SettingsOpt.Height
+                            this.Game_.SettingsHeight_ = min(20, this.Game_.SettingsHeight_ + 1);
+
+                        case SettingsOpt.Difficulty
+                            this.Game_.SettingsDifficulty_ = min(3, this.Game_.SettingsDifficulty_ + 1);
+
+                        case SettingsOpt.Music
+                            this.Game_.SettingsToggledMusic_ = ~this.Game_.SettingsToggledMusic_;
+                        
+                        case SettingsOpt.Sound_Effects
+                            this.Game_.SettingsToggledSoundEffects_ = ~this.Game_.SettingsToggledSoundEffects_;
                     end
                     this.Game_.Renderer_.DrawSettings();
             end
@@ -365,7 +383,7 @@ classdef InputHandler < handle
 
         function MouseScrollCallback(this, ~, event)
             tempo_decorrido = toc(this.LastScroll_) * 1000;
-            if this.Game_.SettingsOpt_ == SettingsOpt.Dificulty
+            if this.Game_.SettingsOpt_ == SettingsOpt.Difficulty
                 if tempo_decorrido < 100
                     return;
                 end

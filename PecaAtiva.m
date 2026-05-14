@@ -20,7 +20,7 @@ classdef PecaAtiva < handle
             if nargin > 0
                 this.PosicaoPivo_ = posicao_inicial;
             else
-                this.PosicaoPivo_ = [3, 3, 10]; 
+                this.PosicaoPivo_ = [round(this.Game_.Width_/2), round(this.Game_.Width_/2), this.Game_.Height_]; 
             end
         end
         
