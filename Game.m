@@ -39,7 +39,7 @@ classdef Game < handle
             this.WaitTime_ = 3;
             this.ClockWait_ = [];
 
-            [a, fs] = audioread("Tetris - Main Theme (Synthwave Version).mp3");
+            [a, fs] = audioread("resources/audio/Tetris - Main Theme (Synthwave Version).mp3");
             this.Theme_ = audioplayer(a, fs);
 
             this.PecaAtiva_ = PecaAtiva.empty(1, 0);
