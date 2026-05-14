@@ -35,6 +35,9 @@ classdef InputHandler < handle
 
             elseif this.Game_.GameState_ == GameState.GameOver
                 this.InputHandlerGameOver(event);
+            
+            elseif this.Game_.GameState_ == GameState.PlayerNameInput
+                this.InputHandlerPlayerName(event);
             end
         end
 
@@ -125,9 +128,9 @@ classdef InputHandler < handle
                             this.Game_.Height_ = this.Game_.SettingsHeight_;
                             this.Game_.Width_ = this.Game_.SettingsWidth_;
                             this.Game_.Map_ = zeros(this.Game_.Width_, this.Game_.Width_, this.Game_.Height_+2);
-                            this.Game_.GameState_ = GameState.Playing;
-                            this.Game_.ConfigurarInterfaceJogo();
-                            this.Game_.StartGame();
+                            this.Game_.GameState_ = GameState.PlayerNameInput;
+                            this.Game_.ConfigurarInterfacePlayerName();
+
                         case MenuOpt.Statistics
                         case MenuOpt.Settings
                             this.Game_.GameState_ = GameState.Settings;
@@ -161,6 +164,36 @@ classdef InputHandler < handle
                     
                 case 'escape'
                     close(this.Game_.Renderer_.Fig_);
+            end
+        end
+
+        function InputHandlerPlayerName(this, event)
+            switch event.Key
+                case 'return'
+                    if ~isempty(this.Game_.InputString_)
+                        this.Game_.PlayerName_ = this.Game_.InputString_;
+                        this.Game_.StartGameAfterNameInput();
+                    end
+                    
+                case 'backspace'
+                    if ~isempty(this.Game_.InputString_)
+                        this.Game_.InputString_ = this.Game_.InputString_(1:end-1);
+                        this.Game_.Renderer_.DrawGetPlayerName();
+                    end
+                    
+                otherwise
+                    if isscalar(event.Character) && ischar(event.Character)
+                        char_code = double(event.Character);
+                        if (char_code >= 65 && char_code <= 90) || ...
+                           (char_code >= 97 && char_code <= 122) || ...
+                           (char_code >= 48 && char_code <= 57) || ...
+                           char_code == 32
+                            if length(this.Game_.InputString_) < 20
+                                this.Game_.InputString_ = [this.Game_.InputString_, event.Character];
+                                this.Game_.Renderer_.DrawGetPlayerName();
+                            end
+                        end
+                    end
             end
         end
 

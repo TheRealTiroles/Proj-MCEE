@@ -11,8 +11,6 @@ classdef Game < handle
         ClockWait_;
         Theme_;
 
-    
-        PosFutura_;
         Renderer_;
         InputHandler_;
 
@@ -28,6 +26,10 @@ classdef Game < handle
         SettingsDifficulty_;
         SettingsToggledMusic_;
         SettingsToggledSoundEffects_;
+
+        
+        PlayerName_;
+        InputString_;
     end
 
     methods
@@ -57,6 +59,9 @@ classdef Game < handle
             this.SettingsDifficulty_ = 1;
             this.SettingsToggledMusic_ = false;
             this.SettingsToggledSoundEffects_ = false;
+            
+            this.PlayerName_ = '';
+            this.InputString_ = '';
             
             this.InputHandler_ = InputHandler(this);
             this.Renderer_ = Renderer(this);
@@ -101,6 +106,18 @@ classdef Game < handle
         function ConfigurarInterfaceGameOver(this)
             this.Renderer_.SetupGameOverInterface();
             this.Renderer_.DrawGameOver();
+        end
+
+        function ConfigurarInterfacePlayerName(this)
+            this.Renderer_.SetupPlayerNameInterface();
+            this.InputString_ = '';
+            this.Renderer_.DrawGetPlayerName();
+        end
+
+        function StartGameAfterNameInput(this)
+            this.GameState_ = GameState.Playing;
+            this.ConfigurarInterfaceJogo();
+            this.StartGame();
         end
 
         function ChangeView(this, x)
@@ -298,6 +315,7 @@ classdef Game < handle
         end
         
         function StartGame(this)
+            this.PlayerName_ = this.InputString_;
             this.PecaAtiva_ = PecaAtiva.empty(1, 0);
             for i = 1:4
                 this.PecaAtiva_(i) = PecaAtiva([round(this.Width_/2), round(this.Width_/2), this.Height_], this);
