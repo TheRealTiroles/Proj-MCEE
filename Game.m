@@ -27,6 +27,7 @@ classdef Game < handle
         SettingsToggledMusic_;
         SettingsToggledSoundEffects_;
 
+        Stats_;
         
         PlayerName_;
         InputString_;
@@ -65,6 +66,7 @@ classdef Game < handle
             
             this.InputHandler_ = InputHandler(this);
             this.Renderer_ = Renderer(this);
+            this.Stats_ = Stats("Statistics/Ranks.mat", "Statistics/SavedGames.mat", this);
 
             this.ConfigurarInterfaceMenu();
         end
@@ -339,7 +341,7 @@ classdef Game < handle
             start(this.ClockWait_);
             if this.SettingsToggledMusic_
                 play(this.Theme_);
-            end                
+            end
         end
 
         function GameOver(this)
@@ -350,9 +352,14 @@ classdef Game < handle
                 stop(this.Theme_);
             end
             this.ConfigurarInterfaceGameOver();
+
+            this.Stats_.addToRankings();
+            this.Stats_.storeRankings();
         end
 
         function delete(this)
+            this.Stats_.storeRankings();
+
             t_antigos = timerfind; 
             delete(this.Renderer_.Fig_);
             if ~isempty(this.Clock_)
