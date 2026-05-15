@@ -65,6 +65,11 @@ classdef Stats < handle
             this.Rankings_(n).Difficulty = this.Game_.SettingsDifficulty_;
 
             this.nRanks_ = this.nRanks_ + 1;
+
+            todos_os_scores = [this.Rankings_.score];
+            [~, indices_ordenados] = sort(todos_os_scores, 'descend');
+            
+            this.Rankings_ = this.Rankings_(indices_ordenados);
         end
     end
 end
