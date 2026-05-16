@@ -5,6 +5,7 @@ classdef Renderer < handle
         Eixos_;
         EixosAux_;
         Txt_;
+        ScoreTxt_;
 
         ViewAzimuth_;
         ViewElevation_;
@@ -18,6 +19,7 @@ classdef Renderer < handle
             this.Eixos_ = [];
             this.EixosAux_ = [];
             this.Txt_ = [];
+            this.ScoreTxt_ = [];
 
             this.ViewAzimuth_ = -37.5;
             this.ViewElevation_ = 30;
@@ -302,10 +304,11 @@ classdef Renderer < handle
     
             this.DrawBlocosPosicionados();
             this.DrawPecaAtiva();
-            
+   
             if ~isempty(this.EixosAux_) && isgraphics(this.EixosAux_)
                 if this.Game_.GameState_ ~= GameState.GameOver
                     cla(this.EixosAux_);
+                    this.drawScore();
                     this.DrawProximasPecas();
                 end
             end
@@ -342,7 +345,18 @@ classdef Renderer < handle
         end
 
         function drawScore(this)
-
+            if isempty(this.ScoreTxt_) || ~all(isgraphics(this.ScoreTxt_))
+                this.ScoreTxt_ = text(1, 0.5, '', ...
+                    'Parent', this.EixosAux_, ...
+                    'Units', 'normalized', ...           
+                    'HorizontalAlignment', 'center', ... 
+                    'VerticalAlignment', 'middle', ...                         
+                    'FontSize', 30, ...
+                    'Color', [0 0 0], ...                
+                    'Clipping', 'off');
+            end
+            str = ['Score: ', num2str(this.Game_.Score_)];
+            set(this.ScoreTxt_, 'String', str);
 
         end
 
@@ -449,7 +463,7 @@ classdef Renderer < handle
                 texto_music = sprintf('> Music: %s <', str_music);
                 color_music = [1 0.5 0];
             else
-                texto_music = sprintf('Sound: %s', str_music);
+                texto_music = sprintf('Music: %s', str_music);
                 color_music = [0 0 0];
             end
             text(0.5, 0.32, texto_music, 'FontSize', 32, 'Parent', this.Eixos_, ...

@@ -366,9 +366,11 @@ classdef InputHandler < handle
                 if abs(mouse_y - pos_y(i)) < tolerance_y && abs(mouse_x - center_x) < tolerance_x
                     switch opcoes(i)
                         case MenuOpt.Start
-                            this.Game_.GameState_ = GameState.Playing;
-                            this.Game_.ConfigurarInterfaceJogo();
-                            this.Game_.StartGame();
+                            this.Game_.Height_ = this.Game_.SettingsHeight_;
+                            this.Game_.Width_ = this.Game_.SettingsWidth_;
+                            this.Game_.Map_ = zeros(this.Game_.Width_, this.Game_.Width_, this.Game_.Height_+2);
+                            this.Game_.GameState_ = GameState.PlayerNameInput;
+                            this.Game_.ConfigurarInterfacePlayerName();
                         case MenuOpt.Statistics
                         case MenuOpt.Settings
                             this.Game_.GameState_ = GameState.Settings;

@@ -10,6 +10,7 @@ classdef Game < handle
         Clock_;
         ClockWait_;
         Theme_;
+        PlacingSoundEffect_;
 
         Renderer_;
         InputHandler_;
@@ -46,6 +47,9 @@ classdef Game < handle
 
             [a, fs] = audioread("resources/audio/Tetris - Main Theme (Synthwave Version).mp3");
             this.Theme_ = audioplayer(a, fs);
+            
+            [a, fs] = audioread("Minecraft Stone Sound Effect (mp3cut.net).mp3");
+            this.PlacingSoundEffect_ = audioplayer(a, fs);
 
             this.PecaAtiva_ = PecaAtiva.empty(1, 0);
 
@@ -153,7 +157,7 @@ classdef Game < handle
             end
             if this.WaitTime_ <= 0
                 this.GameState_ = GameState.Playing;
-                if this.SettingsToggledMusic_
+                if this.SettingsToggledMusic_ && isplaying(this.Theme_)
                     resume(this.Theme_);
                 end
                 this.WaitTime_ = 3;
@@ -209,10 +213,18 @@ classdef Game < handle
             end
         end
 
+        function checkIfMusicOver(this)
+            if this.SettingsToggledMusic_ && ~isplaying(this.Theme_)
+                play(this.Theme_);
+            end
+        end
+
         function ClockTick(this)
             if this.GameState_ ~= GameState.Playing
                 return;
             end
+
+            this.checkIfMusicOver();
 
             z_movimento = -1;
             if this.SettingsDifficulty_ == 1
@@ -226,6 +238,9 @@ classdef Game < handle
 
                 this.PecaAtiva_(1).MoverPara(nova_pos);
             else
+                if this.SettingsToggledSoundEffects_ 
+                    play(this.PlacingSoundEffect_);
+                end
 
                 forma = this.PecaAtiva_(1).Shape_;
                 pos = this.PecaAtiva_(1).PosicaoPivo_;
@@ -267,6 +282,11 @@ classdef Game < handle
                 end
             end
             
+
+            if this.SettingsToggledSoundEffects_ 
+                play(this.PlacingSoundEffect_);
+            end
+
             forma = this.PecaAtiva_(1).Shape_;
             pos = this.PecaAtiva_(1).PosicaoPivo_;
             tipo = this.PecaAtiva_(1).Tipo_;
@@ -313,7 +333,6 @@ classdef Game < handle
                 case 8
                     this.Score_ = this.Score_ + increment*80;
             end
-            disp(this.Score_);
         end
         
         function StartGame(this)
